@@ -10,10 +10,15 @@ local scene = composer.newScene()
 --Grupos
 local grpMenu
 
+-- Funciones
+local function jugar()
+    composer.gotoScene("scenes.partida");
+    
+end
 
 --Eventos de la escena
 function scene:create(event)
-    print("scene:create - menu")
+    print("scene:create - game")
     grpMenu = display.newGroup()
     self.view:insert(grpMenu)
 
@@ -21,7 +26,7 @@ function scene:create(event)
     background.x = cx
     background.y = cy
 
-    local lblTitle = display.newText("Conquistador Colonial", cx, 100, native.systemFont, 76)
+    local lblTitle = display.newText("Conquistador Colonial", cx, 100, native.systemFont, 100)
     lblTitle.fill = { 0, 0, 0 }
     grpMenu:insert(lblTitle)
 
@@ -33,7 +38,7 @@ function scene:create(event)
     lblPlay.fill = { 0, 0, 0 } 
     grpMenu:insert(lblPlay)
 
-    --btnPlay:addEventListener("tap", gotoGame)
+    btnPlay:addEventListener("tap", jugar)
 
 
 end
