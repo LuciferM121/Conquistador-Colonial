@@ -3,21 +3,22 @@
 -- https://docs.coronalabs.com/guide/basics/configSettings
 --
 
+local aspectRatio = display.pixelHeight / display.pixelWidth
+local width = 1125
+local height = width * aspectRatio
 application =
 {
 	content =
 	{
-		width = 1200,
-		height = 2000, 
+		width = width ,
+		height = height, 
 		scale = "letterbox",
 		fps = 60,
 		
-		--[[
+		
 		imageSuffix =
 		{
 			    ["@2x"] = 2,
-			    ["@4x"] = 4,
 		},
-		--]]
 	},
 }
