@@ -21,10 +21,80 @@ local usuario2_text
 local usuario3_text
 local usuario4_text
 
+local jugador1
+local jugador2
+local jugador3
+local jugador4
+
+local dado1
+local dado2
+local boton
+
+
+
+
 -- Funciones
+local function actualizaDado() --Función para cambiar la imagen de los dados
+    local dice1 = math.random(6)
+    local dice2 = math.random(6)
+    if turno == true then
+        turno = false
+        if dice1 == 1 then
+            dado1.fill = { type="image", filename="Imagenes/dado1.png" }
+        elseif dice1 == 2 then
+            dado1.fill = { type="image", filename="Imagenes/dado2.png" }
+        elseif dice1 == 3 then
+            dado1.fill = { type="image", filename="Imagenes/dado3.png" }
+        elseif dice1 == 4 then
+            dado1.fill = { type="image", filename="Imagenes/dado4.png" }
+        elseif dice1 == 5 then
+            dado1.fill = { type="image", filename="Imagenes/dado5.png" }
+        elseif dice1 == 6 then
+            dado1.fill = { type="image", filename="Imagenes/dado6.png" }    
+        end
+    
+        if dice2 == 1 then
+            dado2.fill = { type="image", filename="Imagenes/dado1.png" }
+        elseif dice2 == 2 then
+            dado2.fill = { type="image", filename="Imagenes/dado2.png" }
+        elseif dice2 == 3 then
+            dado2.fill = { type="image", filename="Imagenes/dado3.png" }
+        elseif dice2 == 4 then
+            dado2.fill = { type="image", filename="Imagenes/dado4.png" }
+        elseif dice2 == 5 then
+            dado2.fill = { type="image", filename="Imagenes/dado5.png" }
+        elseif dice2 == 6 then
+            dado2.fill = { type="image", filename="Imagenes/dado6.png" }    
+        end
+    end
+end
 
 
 
+local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
+    turno = true
+    grpPartida.isVisible = false
+end
+
+Jugador = {
+    nombre = "",
+    puntos = 0,
+    cartas = 0,
+    casasD = 4,
+    ciudadesD = 5, 
+    caminosD = 15, 
+    casasC = 0
+}
+
+Jugador.__index = Jugador
+
+function Jugador:nuevo(nombre)
+    local nuevo_jugador = {}
+    setmetatable(nuevo_jugador,self)
+    self.__index = self
+    nuevo_jugador.nombre = nombre
+    return nuevo_jugador
+end   
 
 
 
@@ -53,13 +123,113 @@ function scene:create(event)
     tablero.x = display.contentCenterX -100
     tablero.y = display.contentCenterY-70
         --Hexagonos
-    local hexagono1 = display.newImageRect(grpPartida,"Imagenes/hexagonos/12.png", 145, 180)
+    local hexagono1 = display.newImageRect(grpPartida,"Imagenes/hexagonos/12.png", 135, 185)
     hexagono1.x = display.contentCenterX + 7 
     hexagono1.y = display.contentCenterY - 70
+
+    local hexagono2 = display.newImageRect(grpPartida,"Imagenes/hexagonos/13.png", 135, 185)
+    hexagono2.x = display.contentCenterX + 137
+    hexagono2.y = display.contentCenterY - 70
+
+    local hexagono3 = display.newImageRect(grpPartida,"Imagenes/hexagonos/14.png", 135, 185)
+    hexagono3.x = display.contentCenterX - 125
+    hexagono3.y = display.contentCenterY - 70
+
+    local hexagono4 = display.newImageRect(grpPartida,"Imagenes/hexagonos/15.png", 135, 185)
+    hexagono4.x = display.contentCenterX - 260
+    hexagono4.y = display.contentCenterY - 70
+
+    local hexagono5 = display.newImageRect(grpPartida,"Imagenes/hexagonos/16.png", 135, 185)
+    hexagono5.x = display.contentCenterX - 385
+    hexagono5.y = display.contentCenterY - 70
     
+    local hexagono6 = display.newImageRect(grpPartida,"Imagenes/hexagonos/13.png", 135, 185)
+    hexagono6.x = display.contentCenterX - 320
+    hexagono6.y = display.contentCenterY - 182
+    
+    local hexagono7 = display.newImageRect(grpPartida,"Imagenes/hexagonos/12.png", 135, 185)
+    hexagono7.x = display.contentCenterX - 190
+    hexagono7.y = display.contentCenterY - 182
+    
+    local hexagono8 = display.newImageRect(grpPartida,"Imagenes/hexagonos/14.png", 135, 185)
+    hexagono8.x = display.contentCenterX - 60
+    hexagono8.y = display.contentCenterY - 182
+    
+    local hexagono9 = display.newImageRect(grpPartida,"Imagenes/hexagonos/15.png", 135, 185)
+    hexagono9.x = display.contentCenterX + 65
+    hexagono9.y = display.contentCenterY - 182
+    
+    local hexagono10 = display.newImageRect(grpPartida,"Imagenes/hexagonos/16.png", 135, 185)
+    hexagono10.x = display.contentCenterX - 255
+    hexagono10.y = display.contentCenterY - 295
+
+    local hexagono11 = display.newImageRect(grpPartida,"Imagenes/hexagonos/12.png", 135, 185)
+    hexagono11.x = display.contentCenterX - 125
+    hexagono11.y = display.contentCenterY - 295
+
+    local hexagono12 = display.newImageRect(grpPartida,"Imagenes/hexagonos/13.png", 135, 185)
+    hexagono12.x = display.contentCenterX + 5
+    hexagono12.y = display.contentCenterY - 295
+
+    local hexagono13 = display.newImageRect(grpPartida,"Imagenes/hexagonos/14.png", 135, 185)
+    hexagono13.x = display.contentCenterX + 70
+    hexagono13.y = display.contentCenterY + 45
+
+    local hexagono13 = display.newImageRect(grpPartida,"Imagenes/hexagonos/14.png", 135, 185)
+    hexagono13.x = display.contentCenterX + 70
+    hexagono13.y = display.contentCenterY + 45
+
+    local hexagono14 = display.newImageRect(grpPartida,"Imagenes/hexagonos/15.png", 135, 185)
+    hexagono14.x = display.contentCenterX - 60
+    hexagono14.y = display.contentCenterY + 45
+
+    local hexagono15 = display.newImageRect(grpPartida,"Imagenes/hexagonos/16.png", 135, 185)
+    hexagono15.x = display.contentCenterX - 190
+    hexagono15.y = display.contentCenterY + 45
+
+    local hexagono16 = display.newImageRect(grpPartida,"Imagenes/hexagonos/12.png", 135, 185)
+    hexagono16.x = display.contentCenterX - 320
+    hexagono16.y = display.contentCenterY + 45
+    
+    local hexagono17 = display.newImageRect(grpPartida,"Imagenes/hexagonos/13.png", 135, 185)
+    hexagono17.x = display.contentCenterX - 255
+    hexagono17.y = display.contentCenterY + 160
+
+    local hexagono18 = display.newImageRect(grpPartida,"Imagenes/hexagonos/14.png", 135, 185)
+    hexagono18.x = display.contentCenterX - 125
+    hexagono18.y = display.contentCenterY + 160
+
+    local hexagono19 = display.newImageRect(grpPartida,"Imagenes/hexagonos/15.png", 135, 185)
+    hexagono19.x = display.contentCenterX + 5
+    hexagono19.y = display.contentCenterY + 160
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     local numero = display.newImageRect(grpPartida,"Imagenes/hexagonos/18.png", 50, 100)
     numero.x = display.contentCenterX + 7 
     numero.y = display.contentCenterY - 35
+
+    
+
+
+
+
+
         --Barcos
     local barco = display.newImageRect(grpPartida,"Imagenes/barco1.png", 200, 120)
     barco.x = display.contentCenterX -70
@@ -105,41 +275,21 @@ function scene:create(event)
     usuario4.x = display.contentWidth-150
     usuario4.y = display.contentHeight-1000
 
-    --Declaracion de la clase Jugador
-    Jugador = {
-        nombre = "",
-        puntos = 0,
-        cartas = 0,
-        casasD = 4,
-        ciudadesD = 5, 
-        caminosD = 15, 
-        casasC = 0
-    }
-
-    Jugador.__index = Jugador
-
-    function Jugador:nuevo(nombre)
-        local nuevo_jugador = {}
-        setmetatable(nuevo_jugador,self)
-        self.__index = self
-        nuevo_jugador.nombre = nombre
-        return nuevo_jugador
-    end    
-
-    local jugador1 = Jugador:nuevo("Evan")
+    
+    jugador1 = Jugador:nuevo("Evan")
     usuario1_text = display.newText(grpPartida,jugador1.nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
 
-    local jugador2 = Jugador:nuevo("Omar")
+    jugador2 = Jugador:nuevo("Omar")
     usuario2_text = display.newText(grpPartida,jugador2.nombre, display.contentWidth - 350 , display.contentHeight-880, native.systemFont, 50 )
     usuario2_text:setFillColor(0,0,0);
 
-    local jugador1 = Jugador:nuevo("Sebas")
-    usuario3_text = display.newText(grpPartida,jugador1.nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
+    jugador3 = Jugador:nuevo("Sebas")
+    usuario3_text = display.newText(grpPartida,jugador3.nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
 
-    local jugador1 = Jugador:nuevo("Bolillo")
-    usuario4_text = display.newText(grpPartida,jugador1.nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
+    jugador4 = Jugador:nuevo("Bolillo")
+    usuario4_text = display.newText(grpPartida,jugador4.nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
 
     --Banco
@@ -168,59 +318,18 @@ function scene:create(event)
     rocaBank.y = display.contentHeight- 90
 
     --Dados
-    local dado1 = display.newImageRect(grpPartida,"Imagenes/dado1.png", 200, 200)
+    dado1 = display.newImageRect(grpPartida,"Imagenes/dado1.png", 200, 200)
     dado1.x = display.contentWidth -350
     dado1.y = display.contentHeight- 300
 
-    local dado2 = display.newImageRect(grpPartida,"Imagenes/dado2.png", 200, 200)
+    dado2 = display.newImageRect(grpPartida,"Imagenes/dado2.png", 200, 200)
     dado2.x = display.contentWidth- 150
     dado2.y = display.contentHeight- 300
 
     --Avanzar
-    local boton = display.newImageRect(grpPartida,"Imagenes/avanzar.png", 100, 100)
+    boton = display.newImageRect(grpPartida,"Imagenes/avanzar.png", 100, 100)
     boton.x =  display.contentWidth -100
     boton.y = display.contentHeight-500
-
-    local function actualizaDado() --Función para cambiar la imagen de los dados
-        local dice1 = math.random(6)
-        local dice2 = math.random(6)
-        if turno == true then
-            turno = false
-            if dice1 == 1 then
-                dado1.fill = { type="image", filename="Imagenes/dado1.png" }
-            elseif dice1 == 2 then
-                dado1.fill = { type="image", filename="Imagenes/dado2.png" }
-            elseif dice1 == 3 then
-                dado1.fill = { type="image", filename="Imagenes/dado3.png" }
-            elseif dice1 == 4 then
-                dado1.fill = { type="image", filename="Imagenes/dado4.png" }
-            elseif dice1 == 5 then
-                dado1.fill = { type="image", filename="Imagenes/dado5.png" }
-            elseif dice1 == 6 then
-                dado1.fill = { type="image", filename="Imagenes/dado6.png" }    
-            end
-        
-            if dice2 == 1 then
-                dado2.fill = { type="image", filename="Imagenes/dado1.png" }
-            elseif dice2 == 2 then
-                dado2.fill = { type="image", filename="Imagenes/dado2.png" }
-            elseif dice2 == 3 then
-                dado2.fill = { type="image", filename="Imagenes/dado3.png" }
-            elseif dice2 == 4 then
-                dado2.fill = { type="image", filename="Imagenes/dado4.png" }
-            elseif dice2 == 5 then
-                dado2.fill = { type="image", filename="Imagenes/dado5.png" }
-            elseif dice2 == 6 then
-                dado2.fill = { type="image", filename="Imagenes/dado6.png" }    
-            end
-        end
-    end
-    
-    local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
-        turno = true
-        grpPartida.isVisible = false
-    end
-
 
     boton:addEventListener("tap", pasarTurno) --Se le agrega el evento al objeto para pasar Turno
     dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
