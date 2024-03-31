@@ -128,7 +128,7 @@ local numero = display.newImageRect("Imagenes/hexagonos/18.png", 50, 100)
 numero.x = display.contentCenterX + 7 
 numero.y = display.contentCenterY - 35
 
-math.randomseed(os.time()) --Semilla para los random
+
 
 
 local function actualizaDado() --Función para cambiar la imagen de los dados
@@ -175,25 +175,7 @@ dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dado
 dado2:addEventListener("tap", actualizaDado)
 
 --Declaracion de la clase Jugador
-Jugador = {
-    nombre = "",
-    puntos = 0,
-    cartas = 0,
-    casasD = 4,
-    ciudadesD = 5, 
-    caminosD = 15, 
-    casasC = 0
-}
 
-Jugador.__index = Jugador
-
-function Jugador:nuevo(nombre)
-    local nuevo_jugador = {}
-    setmetatable(nuevo_jugador,self)
-    self.__index = self
-    nuevo_jugador.nombre = nombre
-    return nuevo_jugador
-end    
 
 local jugador1 = Jugador:nuevo("Evan")
 usuario1_text = display.newText(jugador1.nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
