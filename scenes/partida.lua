@@ -58,6 +58,7 @@ local imgNum = {
 local numeroHexagonos = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
 local posicion = 1
 local probHex = {}
+local hexagonosM = {}
 
 --Variable para controlar las repeticiones de los hexagonos
 local rep = {0,0,0,0,0,0}
@@ -175,6 +176,34 @@ local function dibujarNumeros()
     end
 end
 
+local function dibujarHexagonos()
+    --HEXAGONOS
+    local x = -255
+    local y = -295
+
+    for i = 1, 19 do
+        if i == 4 then
+            x = -320
+            y = -182
+        elseif i == 8 then
+            x = -385
+            y = -70
+        elseif i == 13 then
+            x = -320
+            y = 45
+        elseif i == 17 then
+            x = -255
+            y = 160
+        end
+        
+        local hexagono1 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
+        hexagono1.x = display.contentCenterX + x
+        hexagono1.y = display.contentCenterY + y
+        
+        table.insert(hexagonosM,hexagono1)
+        x = x + 130
+    end
+end
 
 
 
@@ -227,86 +256,8 @@ function scene:create(event)
     tablero.x = display.contentCenterX -100
     tablero.y = display.contentCenterY-70
         --Hexagonos
-    local hexagono10 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono10.x = display.contentCenterX - 255
-    hexagono10.y = display.contentCenterY - 295
-
-    local hexagono11 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono11.x = display.contentCenterX - 125
-    hexagono11.y = display.contentCenterY - 295
-
-    local hexagono12 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono12.x = display.contentCenterX + 5
-    hexagono12.y = display.contentCenterY - 295
-
-    --Segunda fila
-    local hexagono6 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono6.x = display.contentCenterX - 320
-    hexagono6.y = display.contentCenterY - 182
-    
-    local hexagono7 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono7.x = display.contentCenterX - 190
-    hexagono7.y = display.contentCenterY - 182
-    
-    local hexagono8 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono8.x = display.contentCenterX - 60
-    hexagono8.y = display.contentCenterY - 182
-    
-    local hexagono9 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono9.x = display.contentCenterX + 65
-    hexagono9.y = display.contentCenterY - 182
-
-    --Tercera fila
-    local hexagono5 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono5.x = display.contentCenterX - 385
-    hexagono5.y = display.contentCenterY - 70
-
-    local hexagono4 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono4.x = display.contentCenterX - 260
-    hexagono4.y = display.contentCenterY - 70
-
-    local hexagono3 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono3.x = display.contentCenterX - 125
-    hexagono3.y = display.contentCenterY - 70
-
-    local hexagono1 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono1.x = display.contentCenterX + 7
-    hexagono1.y = display.contentCenterY - 70
-
-    local hexagono2 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono2.x = display.contentCenterX + 137
-    hexagono2.y = display.contentCenterY - 70
-
-    --Cuarta fila
-    local hexagono16 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono16.x = display.contentCenterX - 320
-    hexagono16.y = display.contentCenterY + 45
-
-    local hexagono15 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono15.x = display.contentCenterX - 190
-    hexagono15.y = display.contentCenterY + 45
-
-    local hexagono14 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono14.x = display.contentCenterX - 60
-    hexagono14.y = display.contentCenterY + 45
-
-    local hexagono13 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono13.x = display.contentCenterX + 70
-    hexagono13.y = display.contentCenterY + 45
-
-    --Quinta fila
-    local hexagono17 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono17.x = display.contentCenterX - 255
-    hexagono17.y = display.contentCenterY + 160
-
-    local hexagono18 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono18.x = display.contentCenterX - 125
-    hexagono18.y = display.contentCenterY + 160
-
-    local hexagono19 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
-    hexagono19.x = display.contentCenterX + 5
-    hexagono19.y = display.contentCenterY + 160
-
+    dibujarHexagonos()
+        --Probabilidades
     dibujarNumeros() 
 
 
