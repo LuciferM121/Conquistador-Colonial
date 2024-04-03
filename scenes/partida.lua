@@ -66,6 +66,12 @@ local rep = {0,0,0,0,0,0}
 --Variable para las probabilidades
 local probabilidad = {1,2,2,2,2,2,2,2,2,2}
 
+--Cronometro
+local textoTiempo = display.newText("", display.contentWidth-350, display.contentHeight-500, native.systemFont, 30)
+local tiempoTotal = 180
+local tiempoRestante = tiempoTotal
+local temporizador
+
 -- Funciones
 local function colocarHexagonos() --Funcion para randomizar el tipo de hexagono
     local valor
@@ -142,6 +148,23 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     grpPartida.isVisible = false
 end
 
+local function actualizarTextoTiempo()
+    local minutos = math.floor(tiempoRestante / 60)
+    local segundos = tiempoRestante % 60
+    local tiempoFormateado = string.format("%02d:%02d", minutos, segundos)
+    textoTiempo.text = tiempoFormateado
+end
+
+local function actualizarTemporizador()
+    tiempoRestante = tiempoRestante - 1
+    if tiempoRestante <= 0 then
+        timer.cancel(temporizador)
+        textoTiempo.text = "¡Tiempo agotado!"
+    else
+        actualizarTextoTiempo()
+    end
+end
+
 local function dibujarNumeros()
     --NUMEROS
     local x = -255
@@ -207,6 +230,14 @@ end
 
 
 
+
+
+    
+
+
+
+
+
 --Creacion de clases
 
 Jugador = {
@@ -260,8 +291,10 @@ function scene:create(event)
         --Probabilidades
     dibujarNumeros() 
 
+    temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
 
-
+    -- Inicializar el objeto de texto con el tiempo restante inicial
+    actualizarTextoTiempo()
 
 
         --Barcos
