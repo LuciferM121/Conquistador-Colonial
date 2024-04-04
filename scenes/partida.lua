@@ -67,7 +67,7 @@ local rep = {0,0,0,0,0,0}
 local probabilidad = {1,2,2,2,2,2,2,2,2,2}
 
 --Cronometro
-local textoTiempo = display.newText("", display.contentWidth-350, display.contentHeight-500, native.systemFont, 30)
+local textoTiempo = display.newText("", display.contentWidth-330, display.contentHeight-500, native.systemFont, 70)
 local tiempoTotal = 180
 local tiempoRestante = tiempoTotal
 local temporizador
@@ -286,7 +286,11 @@ function scene:create(event)
     local tablero = display.newImageRect(grpPartida, "Imagenes/tablero2.png", 1209, 726)
     tablero.x = display.contentCenterX -100
     tablero.y = display.contentCenterY-70
-        --Hexagonos
+    
+    local configuracion = display.newImageRect(grpPartida, "Imagenes/CartasM/11.png", 95, 130)
+    configuracion.x = 70
+    configuracion.y = 70
+    --Hexagonos
     dibujarHexagonos()
         --Probabilidades
     dibujarNumeros() 
@@ -326,19 +330,19 @@ function scene:create(event)
     barco7.x = display.contentCenterX - 50
     barco7.y = display.contentCenterY + 300
     --Jugadores
-    local usuario = display.newImageRect(grpPartida,"Imagenes/usuario.png", 150, 150)
+    local usuario = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
     usuario.x = display.contentWidth-350 
     usuario.y = display.contentHeight-750
 
-    local usuario2 = display.newImageRect(grpPartida,"Imagenes/usuario.png", 150, 150)
+    local usuario2 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 142.5, 195)
     usuario2.x = display.contentWidth-150
     usuario2.y = display.contentHeight-750
 
-    local usuario3 = display.newImageRect(grpPartida,"Imagenes/usuario.png", 150, 150)
+    local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 142.5, 195)
     usuario3.x = display.contentWidth-350 
     usuario3.y = display.contentHeight-1000
 
-    local usuario4 = display.newImageRect(grpPartida,"Imagenes/usuario.png", 150, 150)
+    local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario4.png", 142.5, 195)
     usuario4.x = display.contentWidth-150
     usuario4.y = display.contentHeight-1000
 
