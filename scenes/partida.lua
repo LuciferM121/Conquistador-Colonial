@@ -66,9 +66,13 @@ local rep = {0,0,0,0,0,0}
 --Variable para las probabilidades
 local probabilidad = {1,2,2,2,2,2,2,2,2,2}
 
+--Jugadores
+local jugadores={}
+local jugadorActual = 1;
+local jugando = display.newText("", display.contentCenterX, display.contentHeight-100, native.systemFont, 70)
 --Cronometro
 local textoTiempo = display.newText("", display.contentWidth-330, display.contentHeight-500, native.systemFont, 70)
-local tiempoTotal = 180
+local tiempoTotal = 20
 local tiempoRestante = tiempoTotal
 local temporizador
 
@@ -143,11 +147,6 @@ local function actualizaDado() --Función para cambiar la imagen de los dados
     end
 end
 
-local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
-    turno = true
-    grpPartida.isVisible = false
-end
-
 local function actualizarTextoTiempo()
     local minutos = math.floor(tiempoRestante / 60)
     local segundos = tiempoRestante % 60
@@ -155,15 +154,37 @@ local function actualizarTextoTiempo()
     textoTiempo.text = tiempoFormateado
 end
 
+local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
+    turno = true
+    if jugadorActual ==1 then 
+        jugando.text = jugadores[2].nombre
+        jugadorActual = 2 
+    elseif jugadorActual ==2 then
+        jugando.text = jugadores[3].nombre
+        jugadorActual = 3 
+    elseif jugadorActual ==3 then
+        jugando.text = jugadores[4].nombre
+        jugadorActual = 4 
+    else
+        jugando.text = jugadores[1].nombre
+        jugadorActual = 1 
+    end
+    tiempoRestante = tiempoTotal
+    actualizarTextoTiempo()
+    
+end
+
 local function actualizarTemporizador()
     tiempoRestante = tiempoRestante - 1
     if tiempoRestante <= 0 then
         timer.cancel(temporizador)
-        textoTiempo.text = "¡Tiempo agotado!"
+        pasarTurno()
     else
         actualizarTextoTiempo()
     end
 end
+
+
 
 local function dibujarNumeros()
     --NUMEROS
@@ -329,6 +350,8 @@ function scene:create(event)
     local barco7 = display.newImageRect(grpPartida,"Imagenes/barco6.png", 200, 120)
     barco7.x = display.contentCenterX - 50
     barco7.y = display.contentCenterY + 300
+    
+    
     --Jugadores
     local usuario = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
     usuario.x = display.contentWidth-350 
@@ -350,18 +373,22 @@ function scene:create(event)
     jugador1 = Jugador:nuevo("Evan")
     usuario1_text = display.newText(grpPartida,jugador1.nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
+    table.insert(jugadores,jugador1)
 
     jugador2 = Jugador:nuevo("Omar")
     usuario2_text = display.newText(grpPartida,jugador2.nombre, display.contentWidth - 350 , display.contentHeight-880, native.systemFont, 50 )
     usuario2_text:setFillColor(0,0,0);
+    table.insert(jugadores,jugador2)
 
     jugador3 = Jugador:nuevo("Sebas")
     usuario3_text = display.newText(grpPartida,jugador3.nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
+    table.insert(jugadores,jugador3)
 
     jugador4 = Jugador:nuevo("Bolillo")
     usuario4_text = display.newText(grpPartida,jugador4.nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
+    table.insert(jugadores,jugador4)
 
     --Banco
     local cartasEspeciales = display.newImageRect(grpPartida,"Imagenes/tcartas.png", 100, 140)
