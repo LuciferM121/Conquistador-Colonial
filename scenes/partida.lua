@@ -169,20 +169,26 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
         jugando.text = jugadores[1].nombre
         jugadorActual = 1 
     end
-    tiempoRestante = tiempoTotal
-    actualizarTextoTiempo()
-    
+    tiempoRestante = 0
 end
 
 local function actualizarTemporizador()
     tiempoRestante = tiempoRestante - 1
     if tiempoRestante <= 0 then
-        timer.cancel(temporizador)
-        pasarTurno()
+        
+        tiempoRestante = tiempoTotal
+        actualizarTextoTiempo()
+        actualizarTemporizador()
+
     else
         actualizarTextoTiempo()
     end
 end
+
+
+
+
+
 
 
 
