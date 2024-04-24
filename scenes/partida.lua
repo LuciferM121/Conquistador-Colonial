@@ -9,10 +9,7 @@ local scene = composer.newScene()
 
 --Grupos
 local grpPartida
-local grpJugador1
-local grpJugador2
-local grpJugador3
-local grpJugador4
+local grpJugadores = {}
 
 --Objetos
 local turno = true
@@ -28,6 +25,8 @@ local jugador4
 
 local dado1
 local dado2
+local dice1
+local dice2
 local boton
 
 local imgHex = {
@@ -40,21 +39,30 @@ local imgHex = {
 }
 
 local imgNum = {
-    "Imagenes/hexagonos/18.png",
     "Imagenes/hexagonos/19.png",
     "Imagenes/hexagonos/20.png",
     "Imagenes/hexagonos/21.png",
     "Imagenes/hexagonos/22.png",
     "Imagenes/hexagonos/23.png",
+    "Imagenes/hexagonos/29.png",
     "Imagenes/hexagonos/24.png",
     "Imagenes/hexagonos/25.png",
     "Imagenes/hexagonos/26.png",
     "Imagenes/hexagonos/27.png",
-    "Imagenes/hexagonos/28.png",
-    "Imagenes/hexagonos/29.png"
+    "Imagenes/hexagonos/28.png"
+    
 }
 
---Variable para almacenar el tipo y el numero que le corresponde a cada hexagono
+local imgCartas = {
+
+}
+
+--Son arreglos para guardar las cartas que aparecen en la pantalla
+local cartasjugador = {{}, {}, {}, {}}
+
+
+
+--Variable para almacenar el tipo y el numero que le corresponde a cada hexagono en 1 el tipo y en 2 la probabilidad
 local numeroHexagonos = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
 local posicion = 1
 local probHex = {}
@@ -64,7 +72,7 @@ local hexagonosM = {}
 local rep = {0,0,0,0,0,0}
 
 --Variable para las probabilidades
-local probabilidad = {1,2,2,2,2,2,2,2,2,2}
+local probabilidad = {1,2,2,2,2,0,2,2,2,2,1}
 
 --Jugadores
 local jugadores={}
@@ -92,60 +100,68 @@ local function colocarHexagonos() --Funcion para randomizar el tipo de hexagono
         elseif rep[valor] < 1 then
             rep[valor] = rep[valor] + 1
             numeroHexagonos[posicion][1] = valor
+            numeroHexagonos[posicion][2] = 7
             posicion = posicion + 1
             return valor
         end   
     end
 end
 
-local function asignarProbabilidad(posicion) --Funcion para randomizar el tipo de hexagono
+local function asignarProbabilidad(posicion) --Funcion para randomizar la probabilidad de hexagono
     local valor
     local bandera = false
     while bandera == false do
-        valor = math.random(10)
+        valor = math.random(11)
         if probabilidad[valor] > 0 then
-            probabilidad[valor] = probabilidad[valor] - 1
-            numeroHexagonos[posicion][2] = valor
-            return valor 
+        probabilidad[valor] = probabilidad[valor] - 1
+        numeroHexagonos[posicion][2] = valor 
+        return valor
         end   
     end
 end
 
-
-local function actualizaDado() --Función para cambiar la imagen de los dados
-    local dice1 = math.random(6)
-    local dice2 = math.random(6)
-    if turno == true then
-        turno = false
-        if dice1 == 1 then
-            dado1.fill = { type="image", filename="Imagenes/dado1.png" }
-        elseif dice1 == 2 then
-            dado1.fill = { type="image", filename="Imagenes/dado2.png" }
-        elseif dice1 == 3 then
-            dado1.fill = { type="image", filename="Imagenes/dado3.png" }
-        elseif dice1 == 4 then
-            dado1.fill = { type="image", filename="Imagenes/dado4.png" }
-        elseif dice1 == 5 then
-            dado1.fill = { type="image", filename="Imagenes/dado5.png" }
-        elseif dice1 == 6 then
-            dado1.fill = { type="image", filename="Imagenes/dado6.png" }    
-        end
-    
-        if dice2 == 1 then
-            dado2.fill = { type="image", filename="Imagenes/dado1.png" }
-        elseif dice2 == 2 then
-            dado2.fill = { type="image", filename="Imagenes/dado2.png" }
-        elseif dice2 == 3 then
-            dado2.fill = { type="image", filename="Imagenes/dado3.png" }
-        elseif dice2 == 4 then
-            dado2.fill = { type="image", filename="Imagenes/dado4.png" }
-        elseif dice2 == 5 then
-            dado2.fill = { type="image", filename="Imagenes/dado5.png" }
-        elseif dice2 == 6 then
-            dado2.fill = { type="image", filename="Imagenes/dado6.png" }    
+local function aumentar(carta)
+    for i = 1, 4 do
+        if carta == 1 then
+            jugadores[i].cartas1 = jugadores[i].cartas1 + 1
+        elseif carta == 2  then
+            jugadores[i].cartas2 = jugadores[i].cartas2 + 1
+        elseif carta == 3  then
+            jugadores[i].cartas3 = jugadores[i].cartas3 + 1
+        elseif carta == 4  then
+            jugadores[i].cartas4 = jugadores[i].cartas4 + 1
+        elseif carta == 5  then
+            jugadores[i].cartas5 = jugadores[i].cartas5 + 1
         end
     end
 end
+
+local function obtenerRecursos()
+    local probabilidad = dice1 + dice2
+    print("probabilidad: ",probabilidad)
+    if probabilidad ~= 7 then
+        for i =1, 19 do
+            if numeroHexagonos[i][2] == probabilidad -1 then
+                print("Hexagono: ", i)
+                aumentar(numeroHexagonos[i][1])
+            end
+        end
+    end
+    
+end
+
+local function actualizaDado() --Función para cambiar la imagen de los dados
+    dice1 = math.random(6)
+    dice2 = math.random(6)
+    if turno == true then
+        turno = false
+        dado1.fill = { type="image", filename="Imagenes/dado"..dice1..".png" }
+        dado2.fill = { type="image", filename="Imagenes/dado"..dice2..".png" }
+        obtenerRecursos()
+    end
+end
+
+
 
 local function actualizarTextoTiempo()
     local minutos = math.floor(tiempoRestante / 60)
@@ -154,35 +170,124 @@ local function actualizarTextoTiempo()
     textoTiempo.text = tiempoFormateado
 end
 
-local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
-    turno = true
-    if jugadorActual ==1 then 
-        jugando.text = jugadores[2].nombre
-        jugadorActual = 2 
-    elseif jugadorActual ==2 then
-        jugando.text = jugadores[3].nombre
-        jugadorActual = 3 
-    elseif jugadorActual ==3 then
-        jugando.text = jugadores[4].nombre
-        jugadorActual = 4 
-    else
-        jugando.text = jugadores[1].nombre
-        jugadorActual = 1 
+
+local function actualizarRecursos() --La funcion mas larga, es para actualizar las cartas de los jugadores, si usted que lee esto tiene una idea para hacerla corta, adelante
+    for i =1, 4 do
+        if jugadores[i].cartas1 == 0 then 
+            cartasjugador[i][1].fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        elseif jugadores[i].cartas1 >=3 then
+            cartasjugador[i][1].fill = { type="image", filename="Imagenes/CartasM/cartas13.png" }
+        elseif jugadores[i].cartas1 ==2 then
+            cartasjugador[i][1].fill = { type="image", filename="Imagenes/CartasM/cartas12.png" }
+        else
+            cartasjugador[i][1].fill = { type="image", filename="Imagenes/CartasM/cartas11.png" }
+        end
+        if jugadores[i].cartas2 == 0 then 
+            cartasjugador[i][2].fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        elseif jugadores[i].cartas2 >=3 then
+            cartasjugador[i][2].fill = { type="image", filename="Imagenes/CartasM/cartas23.png" }
+        elseif jugadores[i].cartas2 ==2 then
+            cartasjugador[i][2].fill = { type="image", filename="Imagenes/CartasM/cartas22.png" }
+        else
+            cartasjugador[i][2].fill = { type="image", filename="Imagenes/CartasM/cartas21.png" }
+        end
+        if jugadores[i].cartas3 == 0 then 
+            cartasjugador[i][3].fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        elseif jugadores[i].cartas3 >=3 then
+            cartasjugador[i][3].fill = { type="image", filename="Imagenes/CartasM/cartas33.png" }
+        elseif jugadores[i].cartas3 ==2 then
+            cartasjugador[i][3].fill = { type="image", filename="Imagenes/CartasM/cartas32.png" }
+        else
+            cartasjugador[i][3].fill = { type="image", filename="Imagenes/CartasM/cartas31.png" }
+        end
+        if jugadores[i].cartas4 == 0 then 
+            cartasjugador[i][4].fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        elseif jugadores[i].cartas4 >=3 then
+            cartasjugador[i][4].fill = { type="image", filename="Imagenes/CartasM/cartas43.png" }
+        elseif jugadores[i].cartas4 ==2 then
+            cartasjugador[i][4].fill = { type="image", filename="Imagenes/CartasM/cartas42.png" }
+        else
+            cartasjugador[i][4].fill = { type="image", filename="Imagenes/CartasM/cartas41.png" }
+        end
+        if jugadores[i].cartas5 == 0 then 
+            cartasjugador[i][5].fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        elseif jugadores[i].cartas5 >=3 then
+            cartasjugador[i][5].fill = { type="image", filename="Imagenes/CartasM/cartas53.png" }
+        elseif jugadores[i].cartas5 ==2 then
+            cartasjugador[i][5].fill = { type="image", filename="Imagenes/CartasM/cartas52.png" }
+        else
+            cartasjugador[i][5].fill = { type="image", filename="Imagenes/CartasM/cartas51.png" }
+        end
+        if jugadores[i].cartas6 == 0 then 
+            cartasjugador[i][6].fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        else
+            cartasjugador[i][6].fill = { type="image", filename="Imagenes/CartasM/tcartas.png" }
+        end
     end
-    tiempoRestante = 0
 end
+
 
 local function actualizarTemporizador()
     tiempoRestante = tiempoRestante - 1
     if tiempoRestante <= 0 then
-        
-        tiempoRestante = tiempoTotal
+        timer.cancel(temporizador)
+        tiempoRestante = 20
+        temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
         actualizarTextoTiempo()
-        actualizarTemporizador()
-
+        turno = true
+        if jugadorActual ==1 then 
+            jugando.text = jugadores[2].nombre
+            jugadorActual = 2 
+        elseif jugadorActual ==2 then
+            jugando.text = jugadores[3].nombre
+            jugadorActual = 3 
+        elseif jugadorActual ==3 then
+            jugando.text = jugadores[4].nombre
+            jugadorActual = 4 
+        else
+            jugando.text = jugadores[1].nombre
+            jugadorActual = 1
+        end
     else
         actualizarTextoTiempo()
     end
+end
+
+local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
+    turno = true
+    if jugadorActual ==1 then 
+        jugando.text = jugadores[2].nombre
+        jugadorActual = 2
+        actualizarRecursos()
+        grpJugadores[1].isVisible = false
+        grpJugadores[2].isVisible = true
+
+
+    elseif jugadorActual ==2 then
+        actualizarRecursos()
+        jugando.text = jugadores[3].nombre
+        jugadorActual = 3
+        grpJugadores[2].isVisible = false
+        grpJugadores[3].isVisible = true
+
+    elseif jugadorActual ==3 then
+        actualizarRecursos()
+        jugando.text = jugadores[4].nombre
+        jugadorActual = 4
+        grpJugadores[3].isVisible = false
+        grpJugadores[4].isVisible = true
+    else
+        actualizarRecursos()
+        jugando.text = jugadores[1].nombre
+        jugadorActual = 1
+        grpJugadores[4].isVisible = false
+        grpJugadores[1].isVisible = true
+
+    end
+    timer.cancel(temporizador)
+    tiempoRestante = 20
+    temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
+    actualizarTextoTiempo()
 end
 
 
@@ -216,7 +321,7 @@ local function dibujarNumeros()
             numero1.x = display.contentCenterX + x
             numero1.y = display.contentCenterY + y
         else
-            local numero1 = display.newImageRect(grpPartida,imgNum[12], 60, 40)
+            local numero1 = display.newImageRect(grpPartida,imgNum[6], 60, 40)
             numero1.x = display.contentCenterX + x
             numero1.y = display.contentCenterY + y
         end
@@ -255,11 +360,23 @@ local function dibujarHexagonos()
     end
 end
 
+local function colocarCartas()
+    local x = 180
+    local y = 200
+    for i =1, 4 do
+        x = 180
+        y = 200
+        for j =1, 6 do
+            local carta = display.newImageRect(grpJugadores[i],"Imagenes/CartasM/vacia.png", 100, 140)
+            carta.x =  x
+            carta.y =  y
+            y = y + 150
+            table.insert(cartasjugador[i],carta)
+        end
+    end
+end
 
 
-
-
-    
 
 
 
@@ -268,16 +385,26 @@ end
 --Creacion de clases
 
 Jugador = {
+    numero = 0,
     nombre = "",
     puntos = 0,
     cartas = 0,
     casasD = 4,
     ciudadesD = 5, 
     caminosD = 15, 
-    casasC = 0
+    casasC = 0,
+    cartas1 = 0, --arboles
+    cartas2 = 0, --trigo
+    cartas3 = 0, --ladrillo
+    cartas4 = 0, --vacas 
+    cartas5 = 0, --roca
+    cartas6 = 0  --especiales
+    --cartasR = {}
+
 }
 
 Jugador.__index = Jugador
+
 
 function Jugador:nuevo(nombre)
     local nuevo_jugador = {}
@@ -296,14 +423,10 @@ function scene:create(event)
     --Agregar grupo de imagenes
     grpPartida = display.newGroup()
     self.view:insert(grpPartida)
-    grpJugador1 = display.newGroup()
-    grpPartida:insert(grpJugador1)
-    grpJugador2 = display.newGroup()
-    grpPartida:insert(grpJugador2)
-    grpJugador3 = display.newGroup()
-    grpPartida:insert(grpJugador3)
-    grpJugador4 = display.newGroup()
-    grpPartida:insert(grpJugador4)
+    for i = 1, 4 do
+        local grpjugador = display.newGroup()
+        table.insert(grpJugadores,grpjugador)
+    end
 
     local background = display.newImageRect(grpPartida,"Imagenes/fondoH.png", 2800, 1200 )
     background.x = display.contentCenterX
@@ -320,7 +443,7 @@ function scene:create(event)
     --Hexagonos
     dibujarHexagonos()
         --Probabilidades
-    dibujarNumeros() 
+    dibujarNumeros()
 
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
 
@@ -376,48 +499,70 @@ function scene:create(event)
     usuario4.y = display.contentHeight-1000
 
     
-    jugador1 = Jugador:nuevo("Evan")
-    usuario1_text = display.newText(grpPartida,jugador1.nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
+    jugadores[1] = Jugador:nuevo("Evan")
+    jugadores[1].numero = 1
+    usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
-    table.insert(jugadores,jugador1)
+    --table.insert(jugadores,jugador1)
 
-    jugador2 = Jugador:nuevo("Omar")
-    usuario2_text = display.newText(grpPartida,jugador2.nombre, display.contentWidth - 350 , display.contentHeight-880, native.systemFont, 50 )
+
+    jugadores[2] = Jugador:nuevo("Omar")
+    jugadores[2].numero = 2
+    usuario2_text = display.newText(grpPartida,jugadores[2].nombre, display.contentWidth - 350 , display.contentHeight-880, native.systemFont, 50 )
     usuario2_text:setFillColor(0,0,0);
-    table.insert(jugadores,jugador2)
+    --table.insert(jugadores,jugador2)
+    
 
-    jugador3 = Jugador:nuevo("Sebas")
-    usuario3_text = display.newText(grpPartida,jugador3.nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
+    jugadores[3] = Jugador:nuevo("Sebas")
+    jugadores[3].numero = 3
+    usuario3_text = display.newText(grpPartida,jugadores[3].nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
-    table.insert(jugadores,jugador3)
+   -- table.insert(jugadores,jugador3)
+    
 
-    jugador4 = Jugador:nuevo("Bolillo")
-    usuario4_text = display.newText(grpPartida,jugador4.nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
+    jugadores[4] = Jugador:nuevo("Bolillo")
+    jugadores[4].numero = 4
+    usuario4_text = display.newText(grpPartida,jugadores[4].nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
-    table.insert(jugadores,jugador4)
+    --table.insert(jugadores,jugador4)
+    
+
+    colocarCartas()
+    grpPartida:insert(grpJugadores[jugadores[1].numero])
+    grpPartida:insert(grpJugadores[jugadores[2].numero])
+    grpJugadores[2].isVisible = false
+    grpPartida:insert(grpJugadores[jugadores[3].numero])
+    grpJugadores[3].isVisible = false
+    grpPartida:insert(grpJugadores[jugadores[4].numero])
+    grpJugadores[4].isVisible = false
+    --jugadores[1].cartas1 = 2
+    --jugadores[2].cartas1 = 3
+    --jugadores[3].cartas3 = 1
+    --jugadores[4].cartas5 = 2
+
 
     --Banco
-    local cartasEspeciales = display.newImageRect(grpPartida,"Imagenes/tcartas.png", 100, 140)
+    local cartasEspeciales = display.newImageRect(grpPartida,"Imagenes/CartasM/tcartas.png", 100, 140)
     cartasEspeciales.x = display.contentWidth - 650
     cartasEspeciales.y = display.contentHeight- 90
 
-    local arbolBank = display.newImageRect(grpPartida,"Imagenes/arbol.png", 100, 140)
+    local arbolBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas11.png", 100, 140)
     arbolBank.x = display.contentWidth - 540
     arbolBank.y = display.contentHeight-90
 
-    local ladrilloBank = display.newImageRect(grpPartida,"Imagenes/ladrillo.png", 100, 140)
+    local ladrilloBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas21.png", 100, 140)
     ladrilloBank.x = display.contentWidth - 430
     ladrilloBank.y = display.contentHeight- 90
 
-    local trigoBank = display.newImageRect(grpPartida,"Imagenes/trigo.png", 100, 140)
+    local trigoBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas31.png", 100, 140)
     trigoBank.x = display.contentWidth - 320
     trigoBank.y = display.contentHeight- 90
 
-    local vacaBank = display.newImageRect(grpPartida,"Imagenes/vaca.png", 100, 140)
+    local vacaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas41.png", 100, 140)
     vacaBank.x = display.contentWidth - 210 
     vacaBank.y = display.contentHeight- 90
 
-    local rocaBank = display.newImageRect(grpPartida,"Imagenes/roca.png", 100, 140)
+    local rocaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas51.png", 100, 140)
     rocaBank.x = display.contentWidth -100
     rocaBank.y = display.contentHeight- 90
 

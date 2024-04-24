@@ -9,5 +9,5 @@
 
 local composer = require('composer')
 composer.recycleOnSceneChange = true
-composer.gotoScene("scenes.partida")
+composer.gotoScene("scenes.menu")
 
