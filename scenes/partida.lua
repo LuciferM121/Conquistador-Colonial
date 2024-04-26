@@ -350,6 +350,8 @@ local function dibujarHexagonos()
             x = -255
             y = 160
         end
+
+        
         
         local hexagono1 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
         hexagono1.x = display.contentCenterX + x
@@ -403,7 +405,28 @@ Jugador = {
 
 }
 
+Vertice = {
+    ocupado = false, 
+    coordenadax = 0,
+    coordenaday = 0,
+    hex1 = nil,
+    hex2 = nil,
+    hex3 = nil
+}
+
+Camino = {
+    ocupado = false,
+    verticeI = nil,
+    verticeF = nil,
+    coordenadax = 0,
+    coordenaday = 0
+}
+
 Jugador.__index = Jugador
+
+Vertice.__index = Vertice 
+
+Camino.__index = Camino
 
 
 function Jugador:nuevo(nombre)
@@ -412,7 +435,25 @@ function Jugador:nuevo(nombre)
     self.__index = self
     nuevo_jugador.nombre = nombre
     return nuevo_jugador
-end   
+end
+
+function Vertice:nuevo(x, y)
+    local nuevo_vertice = {}
+    setmetatable(nuevo_vertice,self)
+    self.__index = self
+    nuevo_vertice.coordenadax = x
+    nuevo_vertice.coordenaday = y
+    return nuevo_vertice
+end
+
+function Camino:nuevo(x, y)
+    local nuevo_camino = {}
+    setmetatable(nuevo_camino,self)
+    self.__index = self
+    nuevo_camino.coordenadax = x
+    nuevo_camino.coordenaday = y
+    return nuevo_camino
+end
 
 
 
@@ -479,7 +520,6 @@ function scene:create(event)
     local barco7 = display.newImageRect(grpPartida,"Imagenes/barco6.png", 200, 120)
     barco7.x = display.contentCenterX - 50
     barco7.y = display.contentCenterY + 300
-    
     
     --Jugadores
     local usuario = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
@@ -579,6 +619,37 @@ function scene:create(event)
     boton = display.newImageRect(grpPartida,"Imagenes/avanzar.png", 100, 100)
     boton.x =  display.contentWidth -100
     boton.y = display.contentHeight-500
+
+    --Objetos
+    local casas = display.newImageRect(grpPartida,"Imagenes/Construccion/casa.png", 105, 140)
+    casas.x = display.contentCenterX
+    casas.y = display.contentHeight-100
+
+    local ciudades = display.newImageRect(grpPartida,"Imagenes/Construccion/ciudad.png", 105, 140)
+    ciudades.x = display.contentCenterX + 130
+    ciudades.y = display.contentHeight-100
+
+    local camino = display.newImageRect(grpPartida,"Imagenes/Construccion/camino.png", 105, 140)
+    camino.x = display.contentCenterX +250
+    camino.y = display.contentHeight- 100
+
+
+    local miCirculo = display.newCircle(display.contentCenterX-315, display.contentCenterY-335, 15)
+    miCirculo:setFillColor(1)
+    local miCirculo1 = display.newCircle(display.contentCenterX-315, display.contentCenterY-255, 15)
+    miCirculo1:setFillColor(1)
+    local miCirculo2 = display.newCircle(display.contentCenterX-195, display.contentCenterY-255, 15)
+    miCirculo2:setFillColor(1)
+    local miCirculo3 = display.newCircle(display.contentCenterX-195, display.contentCenterY-335, 15)
+    miCirculo3:setFillColor(1)
+    local miCirculo4 = display.newCircle(display.contentCenterX-255, display.contentCenterY-370, 15)
+    miCirculo4:setFillColor(1)
+    local miCirculo5 = display.newCircle(display.contentCenterX-255, display.contentCenterY-220, 15)
+    miCirculo5:setFillColor(1)
+
+
+
+    
 
     boton:addEventListener("tap", pasarTurno) --Se le agrega el evento al objeto para pasar Turno
     dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
