@@ -18,11 +18,6 @@ local usuario2_text
 local usuario3_text
 local usuario4_text
 
-local jugador1
-local jugador2
-local jugador3
-local jugador4
-
 local dado1
 local dado2
 local dice1
@@ -63,10 +58,32 @@ local cartasjugador = {{}, {}, {}, {}}
 
 
 --Variable para almacenar el tipo y el numero que le corresponde a cada hexagono en 1 el tipo y en 2 la probabilidad
-local numeroHexagonos = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
-local posicion = 1
+local numeroHexagonos = {
+    {0,0,{1,2,3,9,10,11}}, 
+    {0,0,{3,4,5,11,12,13}}, 
+    {0,0,{5,6,7,13,14,15}}, 
+    {0,0,{8,9,10,18,19,20}}, 
+    {0,0,{10,11,12,20,21,22}}, 
+    {0,0,{12,13,14,22,23,24}}, 
+    {0,0,{14,15,16,24,25,26}}, 
+    {0,0,{17,18,19,28,29,30}}, 
+    {0,0,{19,20,21,30,31,32}}, 
+    {0,0,{21,22,23,32,33,34}}, 
+    {0,0,{23,24,25,34,35,36}}, 
+    {0,0,{25,26,27,36,37,38}}, 
+    {0,0,{29,30,31,39,40,41}}, 
+    {0,0,{31,32,33,41,42,43}}, 
+    {0,0,{33,34,35,43,44,45}}, 
+    {0,0,{35,36,37,45,46,47}}, 
+    {0,0,{40,41,42,48,49,50}}, 
+    {0,0,{42,43,44,50,51,52}}, 
+    {0,0,{44,45,46,52,53,54}}
+  }
+local posicion = 1  
 local probHex = {}
 local hexagonosM = {}
+local verticesC = {}
+local verticeClase = {}
 
 --Variable para controlar las repeticiones de los hexagonos
 local rep = {0,0,0,0,0,0}
@@ -77,12 +94,78 @@ local probabilidad = {1,2,2,2,2,0,2,2,2,2,1}
 --Jugadores
 local jugadores={}
 local jugadorActual = 1;
-local jugando = display.newText("", display.contentCenterX, display.contentHeight-100, native.systemFont, 70)
+local jugando = display.newText("", display.contentCenterX - 300 , display.contentHeight-100, native.systemFont, 70)
 --Cronometro
 local textoTiempo = display.newText("", display.contentWidth-330, display.contentHeight-500, native.systemFont, 70)
 local tiempoTotal = 20
 local tiempoRestante = tiempoTotal
 local temporizador
+
+
+--Creacion de clases
+
+Jugador = {
+    numero = 0,
+    nombre = "",
+    puntos = 0,
+    cartas = 0,
+    casasD = 4,
+    ciudadesD = 5, 
+    caminosD = 15, 
+    casasC = 0,
+    cartas1 = 0, --arboles
+    cartas2 = 0, --trigo
+    cartas3 = 0, --ladrillo
+    cartas4 = 0, --vacas 
+    cartas5 = 0, --roca
+    cartas6 = 0  --especiales
+    --cartasR = {}
+
+}
+
+Vertice = {
+    ocupado = false, 
+    tipoC = 0,
+    jugador = 0
+
+}
+
+Camino = {
+    ocupado = false,
+    verticeI = nil,
+    verticeF = nil,
+    coordenadax = 0,
+    coordenaday = 0
+}
+
+Jugador.__index = Jugador
+
+Vertice.__index = Vertice 
+
+Camino.__index = Camino
+
+
+function Jugador:nuevo(nombre)
+    local nuevo_jugador = {}
+    setmetatable(nuevo_jugador,self)
+    self.__index = self
+    nuevo_jugador.nombre = nombre
+    return nuevo_jugador
+end
+
+function Vertice:nuevo()
+    local nuevo_vertice = {}
+    setmetatable(nuevo_vertice,self)
+    self.__index = self
+    return nuevo_vertice
+end
+
+function Camino:nuevo()
+    local nuevo_camino = {}
+    setmetatable(nuevo_camino,self)
+    self.__index = self
+    return nuevo_camino
+end
 
 -- Funciones
 local function colocarHexagonos() --Funcion para randomizar el tipo de hexagono
@@ -331,6 +414,22 @@ local function dibujarNumeros()
     end
 end
 
+local function colocarCartas()
+    local x = 180
+    local y = 200
+    for i =1, 4 do
+        x = 180
+        y = 200
+        for j =1, 6 do
+            local carta = display.newImageRect(grpJugadores[i],"Imagenes/CartasM/vacia.png", 100, 140)
+            carta.x =  x
+            carta.y =  y
+            y = y + 150
+            table.insert(cartasjugador[i],carta)
+        end
+    end
+end
+
 local function dibujarHexagonos()
     --HEXAGONOS
     local x = -255
@@ -362,19 +461,147 @@ local function dibujarHexagonos()
     end
 end
 
-local function colocarCartas()
-    local x = 180
-    local y = 200
-    for i =1, 4 do
-        x = 180
-        y = 200
-        for j =1, 6 do
-            local carta = display.newImageRect(grpJugadores[i],"Imagenes/CartasM/vacia.png", 100, 140)
-            carta.x =  x
-            carta.y =  y
-            y = y + 150
-            table.insert(cartasjugador[i],carta)
+local function generarVertices()
+    for i = 1, 54 do
+        verticeClase[i] = Vertice:nuevo()
+    end
+end
+
+
+local function dibujarVertices()
+    local x = -255
+    local y = -295
+    local ubx = - 60
+    local uby = - 40
+    for i = 1, 19 do
+        if i == 4 then
+            x = -320
+            y = -182
+        elseif i == 8 then
+            x = -385
+            y = -70
+        elseif i == 13 then
+            x = -320
+            y = 45
+        elseif i == 17 then
+            x = -255
+            y = 160
         end
+        uby = - 40
+        ubx = - 60 
+        
+        for j =1, 2 do
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x + ubx
+            vertice.y = display.contentCenterY + y + uby
+            table.insert(verticesC, vertice)
+            uby = uby * 2
+            ubx = ubx + 60 
+        end
+        x = x + 130
+        if i == 3 or i == 7 or i == 12 or i == 16 or i == 19 then 
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            uby = uby/4
+            vertice.x = display.contentCenterX + x - 65
+            vertice.y = display.contentCenterY + y + uby
+            table.insert(verticesC, vertice)
+
+        elseif i == 13 then
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x - 255
+            vertice.y = display.contentCenterY + y - 75
+            table.insert(verticesC, vertice)
+            
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x - 195
+            vertice.y = display.contentCenterY + y + 30
+            table.insert(verticesC, vertice)
+        end
+        
+        if i == 17 or i == 18 or i == 19 then
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            uby = uby/4
+            vertice.x = display.contentCenterX + x - 130
+            vertice.y = display.contentCenterY + y + 60
+            table.insert(verticesC, vertice)
+
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x - 190
+            vertice.y = display.contentCenterY + y + 30
+            table.insert(verticesC, vertice)
+        end
+
+        if i == 19 then
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x + 65
+            vertice.y = display.contentCenterY + y - 195
+            table.insert(verticesC, vertice)
+            
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x
+            vertice.y = display.contentCenterY + y - 80
+            table.insert(verticesC, vertice)
+            
+            local vertice = display.newImageRect(grpPartida,"Imagenes/Construccion/circulo.png", 15, 15)
+            vertice.x = display.contentCenterX + x - 65
+            vertice.y = display.contentCenterY + y + 30
+            table.insert(verticesC, vertice)
+        end
+
+        
+        generarVertices()
+    end
+end
+
+
+
+local function intercambio(a,b) --Arregla las posiciones de los vertices
+    local aux = verticesC[b]  
+    verticesC[b] = verticesC[a]
+    verticesC[a] = aux
+end
+
+local function verificarRecursos(i)
+    if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas2>=1 and jugadores[jugadorActual].cartas3>=1 and jugadores[jugadorActual].cartas4>=1 then
+        return true
+    end
+    return false
+end
+
+local function cambiarImagen(event) --Coloca las casas 
+    local imagenClicada = event.target
+    if verificarRecursos(1) then
+        imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
+        --imagenClicada:scale(5,5)
+        imagenClicada.width = 75
+        imagenClicada.height = 90
+        local posicion
+        for i, imagen in ipairs(verticesC) do
+            if imagen == imagenClicada then
+                posicion = i
+                break
+            end 
+        end
+
+        verticeClase[posicion].ocupado = true
+        verticeClase[posicion].jugador = jugadorActual
+        verticeClase[posicion].tipoC = 1
+        jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
+        jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
+        jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
+        jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+        actualizarRecursos()
+    end
+    
+    --print(posicion)
+    
+end
+
+
+
+local function COMOQUIERAS()  --Les agrega la funcion de que sis on tocadas se puedan convertir a casa o ciudad. 
+    for i = 1, 54 do
+        verticesC[i]:addEventListener("tap",cambiarImagen)
     end
 end
 
@@ -384,76 +611,8 @@ end
 
 
 
---Creacion de clases
-
-Jugador = {
-    numero = 0,
-    nombre = "",
-    puntos = 0,
-    cartas = 0,
-    casasD = 4,
-    ciudadesD = 5, 
-    caminosD = 15, 
-    casasC = 0,
-    cartas1 = 0, --arboles
-    cartas2 = 0, --trigo
-    cartas3 = 0, --ladrillo
-    cartas4 = 0, --vacas 
-    cartas5 = 0, --roca
-    cartas6 = 0  --especiales
-    --cartasR = {}
-
-}
-
-Vertice = {
-    ocupado = false, 
-    coordenadax = 0,
-    coordenaday = 0,
-    hex1 = nil,
-    hex2 = nil,
-    hex3 = nil
-}
-
-Camino = {
-    ocupado = false,
-    verticeI = nil,
-    verticeF = nil,
-    coordenadax = 0,
-    coordenaday = 0
-}
-
-Jugador.__index = Jugador
-
-Vertice.__index = Vertice 
-
-Camino.__index = Camino
 
 
-function Jugador:nuevo(nombre)
-    local nuevo_jugador = {}
-    setmetatable(nuevo_jugador,self)
-    self.__index = self
-    nuevo_jugador.nombre = nombre
-    return nuevo_jugador
-end
-
-function Vertice:nuevo(x, y)
-    local nuevo_vertice = {}
-    setmetatable(nuevo_vertice,self)
-    self.__index = self
-    nuevo_vertice.coordenadax = x
-    nuevo_vertice.coordenaday = y
-    return nuevo_vertice
-end
-
-function Camino:nuevo(x, y)
-    local nuevo_camino = {}
-    setmetatable(nuevo_camino,self)
-    self.__index = self
-    nuevo_camino.coordenadax = x
-    nuevo_camino.coordenaday = y
-    return nuevo_camino
-end
 
 
 
@@ -523,12 +682,12 @@ function scene:create(event)
     
     --Jugadores
     local usuario = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
-    usuario.x = display.contentWidth-350 
-    usuario.y = display.contentHeight-750
+    usuario.x = display.contentWidth - 350 
+    usuario.y = display.contentHeight - 750
 
     local usuario2 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 142.5, 195)
-    usuario2.x = display.contentWidth-150
-    usuario2.y = display.contentHeight-750
+    usuario2.x = display.contentWidth - 150
+    usuario2.y = display.contentHeight - 750
 
     local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 142.5, 195)
     usuario3.x = display.contentWidth-350 
@@ -588,7 +747,7 @@ function scene:create(event)
 
     local arbolBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas11.png", 100, 140)
     arbolBank.x = display.contentWidth - 540
-    arbolBank.y = display.contentHeight-90
+    arbolBank.y = display.contentHeight - 90
 
     local ladrilloBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas21.png", 100, 140)
     ladrilloBank.x = display.contentWidth - 430
@@ -622,30 +781,44 @@ function scene:create(event)
 
     --Objetos
     local casas = display.newImageRect(grpPartida,"Imagenes/Construccion/casa.png", 105, 140)
-    casas.x = display.contentCenterX
+    casas.x = display.contentCenterX-160
     casas.y = display.contentHeight-100
 
     local ciudades = display.newImageRect(grpPartida,"Imagenes/Construccion/ciudad.png", 105, 140)
-    ciudades.x = display.contentCenterX + 130
+    ciudades.x = display.contentCenterX - 30
     ciudades.y = display.contentHeight-100
 
     local camino = display.newImageRect(grpPartida,"Imagenes/Construccion/camino.png", 105, 140)
-    camino.x = display.contentCenterX +250
+    camino.x = display.contentCenterX +110
     camino.y = display.contentHeight- 100
+    dibujarVertices()
+    intercambio(28,30)
+    intercambio(29,30)
+    intercambio(32,31)
+    intercambio(33,32)
+    intercambio(33,34)
+    intercambio(34,35)
+    intercambio(35,36)
+    intercambio(36,37)
+    intercambio(37,38)
+    intercambio(38,52)
+    intercambio(39,52)
+    intercambio(40,52)
+    intercambio(41,52)
+    intercambio(42,43)
+    intercambio(43,44)
+    intercambio(47,44)
+    intercambio(45,48)
+    intercambio(46,49)
+    intercambio(49,50)
+    intercambio(47,53)
+    intercambio(49,52)
+    intercambio(51,48)
+    intercambio(48,53)
+    intercambio(53,52)
+    COMOQUIERAS()
 
 
-    local miCirculo = display.newCircle(display.contentCenterX-315, display.contentCenterY-335, 15)
-    miCirculo:setFillColor(1)
-    local miCirculo1 = display.newCircle(display.contentCenterX-315, display.contentCenterY-255, 15)
-    miCirculo1:setFillColor(1)
-    local miCirculo2 = display.newCircle(display.contentCenterX-195, display.contentCenterY-255, 15)
-    miCirculo2:setFillColor(1)
-    local miCirculo3 = display.newCircle(display.contentCenterX-195, display.contentCenterY-335, 15)
-    miCirculo3:setFillColor(1)
-    local miCirculo4 = display.newCircle(display.contentCenterX-255, display.contentCenterY-370, 15)
-    miCirculo4:setFillColor(1)
-    local miCirculo5 = display.newCircle(display.contentCenterX-255, display.contentCenterY-220, 15)
-    miCirculo5:setFillColor(1)
 
 
 
