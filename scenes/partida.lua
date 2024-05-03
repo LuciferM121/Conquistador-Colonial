@@ -206,8 +206,7 @@ local function asignarProbabilidad(posicion) --Funcion para randomizar la probab
     end
 end
 
-local function aumentar(carta)
-    for i = 1, 4 do
+local function aumentar(carta, i)
         if carta == 1 then
             jugadores[i].cartas1 = jugadores[i].cartas1 + 1
         elseif carta == 2  then
@@ -219,9 +218,13 @@ local function aumentar(carta)
         elseif carta == 5  then
             jugadores[i].cartas5 = jugadores[i].cartas5 + 1
         end
-    end
 end
 
+local function verOcupacion(j, i)
+    if verticeClase[j].ocupado == true then
+        aumentar(numeroHexagonos[i][1], verticeClase[j].jugador)
+    end
+end
 local function obtenerRecursos()
     local probabilidad = dice1 + dice2
     --print("probabilidad: ",probabilidad)
@@ -229,7 +232,10 @@ local function obtenerRecursos()
         for i =1, 19 do
             if numeroHexagonos[i][2] == probabilidad -1 then
                 --print("Hexagono: ", i)
-                aumentar(numeroHexagonos[i][1])
+                for j = 1, 6 do
+                    verOcupacion(numeroHexagonos[i][3][j], i)
+                end
+                
             end
         end
     end
@@ -586,12 +592,12 @@ local function cambiarImagen(event) --Coloca las casas
                 break
             end 
         end
+        verticeClase[posicion].ocupado = true
+        verticeClase[posicion].jugador = jugadorActual
+        verticeClase[posicion].tipoC = 1
         if ronda ==1 then
             jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
         else
-            verticeClase[posicion].ocupado = true
-            verticeClase[posicion].jugador = jugadorActual
-            verticeClase[posicion].tipoC = 1
             jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
             jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
             jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
