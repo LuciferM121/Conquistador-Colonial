@@ -23,6 +23,7 @@ local dado2
 local dice1
 local dice2
 local boton
+local ronda = 1
 
 local imgHex = {
     "Imagenes/hexagonos/12.png",
@@ -94,7 +95,7 @@ local probabilidad = {1,2,2,2,2,0,2,2,2,2,1}
 --Jugadores
 local jugadores={}
 local jugadorActual = 1;
-local jugando = display.newText("", display.contentCenterX - 300 , display.contentHeight-100, native.systemFont, 70)
+local jugando = display.newText("", display.contentCenterX - 400 , display.contentHeight-200, native.systemFont, 70)
 --Cronometro
 local textoTiempo = display.newText("", display.contentWidth-330, display.contentHeight-500, native.systemFont, 70)
 local tiempoTotal = 20
@@ -118,8 +119,10 @@ Jugador = {
     cartas3 = 0, --ladrillo
     cartas4 = 0, --vacas 
     cartas5 = 0, --roca
-    cartas6 = 0  --especiales
+    cartas6 = 0,  --especiales
     --cartasR = {}
+    casaL = 2,
+    caminoL = 2
 
 }
 
@@ -221,11 +224,11 @@ end
 
 local function obtenerRecursos()
     local probabilidad = dice1 + dice2
-    print("probabilidad: ",probabilidad)
+    --print("probabilidad: ",probabilidad)
     if probabilidad ~= 7 then
         for i =1, 19 do
             if numeroHexagonos[i][2] == probabilidad -1 then
-                print("Hexagono: ", i)
+                --print("Hexagono: ", i)
                 aumentar(numeroHexagonos[i][1])
             end
         end
@@ -330,6 +333,7 @@ local function actualizarTemporizador()
         else
             jugando.text = jugadores[1].nombre
             jugadorActual = 1
+            ronda = ronda + 1 
         end
     else
         actualizarTextoTiempo()
@@ -363,6 +367,7 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
         actualizarRecursos()
         jugando.text = jugadores[1].nombre
         jugadorActual = 1
+        ronda = ronda + 1
         grpJugadores[4].isVisible = false
         grpJugadores[1].isVisible = true
 
@@ -547,8 +552,6 @@ local function dibujarVertices()
             vertice.y = display.contentCenterY + y + 30
             table.insert(verticesC, vertice)
         end
-
-        
         generarVertices()
     end
 end
@@ -570,7 +573,8 @@ end
 
 local function cambiarImagen(event) --Coloca las casas 
     local imagenClicada = event.target
-    if verificarRecursos(1) then
+      
+    if verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1) then
         imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
         --imagenClicada:scale(5,5)
         imagenClicada.width = 75
@@ -582,14 +586,17 @@ local function cambiarImagen(event) --Coloca las casas
                 break
             end 
         end
-
-        verticeClase[posicion].ocupado = true
-        verticeClase[posicion].jugador = jugadorActual
-        verticeClase[posicion].tipoC = 1
-        jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
-        jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
-        jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
-        jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+        if ronda ==1 then
+            jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
+        else
+            verticeClase[posicion].ocupado = true
+            verticeClase[posicion].jugador = jugadorActual
+            verticeClase[posicion].tipoC = 1
+            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
+            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
+            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
+            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+        end
         actualizarRecursos()
     end
     
@@ -818,7 +825,9 @@ function scene:create(event)
     intercambio(53,52)
     COMOQUIERAS()
 
-
+    local tradeo = display.newImageRect(grpPartida,"Imagenes/Construccion/tradeo.png", 400, 240)
+    tradeo.x = display.contentCenterX-400
+    tradeo.y = display.contentHeight-100
 
 
 
