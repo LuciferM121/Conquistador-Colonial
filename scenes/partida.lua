@@ -57,6 +57,63 @@ local imgCartas = {
 local cartasjugador = {{}, {}, {}, {}}
 
 
+    local grafo = {
+        {2,9,nil},
+        {1,3,nil},
+        {2,4,11},
+        {3,5,nil},
+        {4,6,13},
+        {5,7,nil},
+        {6,15,nil},
+        {9,18,nil},
+        {1,8,10},
+        {9,11,20},
+        {3,10,12},
+        {11,13,22},
+        {5,12,14},
+        {13,15,24},
+        {7,14,16},
+        {15,26,nil},
+        {18,28,nil},
+        {8,17,19},
+        {18,20,30},
+        {10,19,21},
+        {20,22,32},
+        {12,21,23},
+        {22,24,34},
+        {14,23,25},
+        {24,26,36},
+        {16,25,27},
+        {26,28,nil},
+        {17,29,nil},
+        {28,30,39},
+        {19,29,31},
+        {30,32,41},
+        {21,31,33},
+        {32,34,43},
+        {23,33,35},
+        {34,36,45},
+        {25,35,37},
+        {36,38,47},
+        {27,37,nil},
+        {29,40,nil},
+        {39,41,48},
+        {31,40,42},
+        {41,43,50},
+        {33,42,44},
+        {43,45,52},
+        {35,44,46},
+        {45,47,54},
+        {37,46,nil},
+        {40,49,nil},
+        {48,50,nil},
+        {42,49,51},
+        {50,52,nil},
+        {44,51,53},
+        {52,54,nil},
+        {46,53,nil}
+    }
+
 
 --Variable para almacenar el tipo y el numero que le corresponde a cada hexagono en 1 el tipo y en 2 la probabilidad
 local numeroHexagonos = {
@@ -129,7 +186,8 @@ Jugador = {
 Vertice = {
     ocupado = false, 
     tipoC = 0,
-    jugador = 0
+    jugador = 0,
+    activo = true
 
 }
 
@@ -137,8 +195,6 @@ Camino = {
     ocupado = false,
     verticeI = nil,
     verticeF = nil,
-    coordenadax = 0,
-    coordenaday = 0
 }
 
 Jugador.__index = Jugador
@@ -577,21 +633,68 @@ local function verificarRecursos(i)
     return false
 end
 
+local function casasDistancia()
+    for i = 1, 54 do
+        if verticeClase[i].ocupado == true then
+            if i ~= 1 and i ~= 1 and i ~= 8 and 17 ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 then
+                if verticeClase[i-1].activo == true then
+                    verticeClase[i-1].activo = false
+                end
+            end
+            if i > 7 then
+                if verticeClase[i-7].activo == true then
+                    verticeClase[i-7].activo = false
+                end
+            end
+        end
+    end
+end
+
+
+
+local function noSonAdyacentes(vertice1, vertice2)
+    -- Verificar si vertice2 no está en la lista de adyacencia de vertice1
+    for i, vecino in ipairs(grafo[vertice1]) do
+        if vecino == vertice2 then
+            return false
+        end
+    end
+    -- Verificar si vertice1 no está en la lista de adyacencia de vertice2
+    for i, vecino in ipairs(grafo[vertice2]) do
+        if vecino == vertice1 then
+            return false
+        end
+    end
+    -- Si no se encontró en ninguna lista, entonces no son adyacentes
+
+    return true
+end
+
+
+
 local function cambiarImagen(event) --Coloca las casas 
     local imagenClicada = event.target
-      
-    if verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1) then
-        imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
-        --imagenClicada:scale(5,5)
-        imagenClicada.width = 75
-        imagenClicada.height = 90
-        local posicion
-        for i, imagen in ipairs(verticesC) do
-            if imagen == imagenClicada then
-                posicion = i
+    local posicion
+    for i, imagen in ipairs(verticesC) do
+        if imagen == imagenClicada then
+            posicion = i
+            break
+        end 
+    end
+
+    local banderaNoAdyacentes = true
+    for i in ipairs(verticesC) do
+        if verticeClase[i].ocupado == true then
+            banderaNoAdyacentes = noSonAdyacentes(posicion,i)
+            if banderaNoAdyacentes == false then
                 break
-            end 
+            end
         end
+    end
+
+
+    if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
+        
         verticeClase[posicion].ocupado = true
         verticeClase[posicion].jugador = jugadorActual
         verticeClase[posicion].tipoC = 1
@@ -603,9 +706,14 @@ local function cambiarImagen(event) --Coloca las casas
             jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
             jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
         end
+        imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
+        --imagenClicada:scale(5,5)
+        imagenClicada.width = 75
+        imagenClicada.height = 90
         actualizarRecursos()
+        
     end
-    
+    banderaNoAdyacentes = true
     --print(posicion)
     
 end
@@ -618,7 +726,35 @@ local function COMOQUIERAS()  --Les agrega la funcion de que sis on tocadas se p
     end
 end
 
+local function hazLaLuz()
 
+    dibujarVertices()
+    intercambio(28,30)
+    intercambio(29,30)
+    intercambio(32,31)
+    intercambio(33,32)
+    intercambio(33,34)
+    intercambio(34,35)
+    intercambio(35,36)
+    intercambio(36,37)
+    intercambio(37,38)
+    intercambio(38,52)
+    intercambio(39,52)
+    intercambio(40,52)
+    intercambio(41,52)
+    intercambio(42,43)
+    intercambio(43,44)
+    intercambio(47,44)
+    intercambio(45,48)
+    intercambio(46,49)
+    intercambio(49,50)
+    intercambio(47,53)
+    intercambio(49,52)
+    intercambio(51,48)
+    intercambio(48,53)
+    intercambio(53,52)
+    COMOQUIERAS()
+end
 
 
 
@@ -657,7 +793,7 @@ function scene:create(event)
     dibujarHexagonos()
         --Probabilidades
     dibujarNumeros()
-
+    hazLaLuz()
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
 
     -- Inicializar el objeto de texto con el tiempo restante inicial
@@ -804,32 +940,7 @@ function scene:create(event)
     local camino = display.newImageRect(grpPartida,"Imagenes/Construccion/camino.png", 105, 140)
     camino.x = display.contentCenterX +110
     camino.y = display.contentHeight- 100
-    dibujarVertices()
-    intercambio(28,30)
-    intercambio(29,30)
-    intercambio(32,31)
-    intercambio(33,32)
-    intercambio(33,34)
-    intercambio(34,35)
-    intercambio(35,36)
-    intercambio(36,37)
-    intercambio(37,38)
-    intercambio(38,52)
-    intercambio(39,52)
-    intercambio(40,52)
-    intercambio(41,52)
-    intercambio(42,43)
-    intercambio(43,44)
-    intercambio(47,44)
-    intercambio(45,48)
-    intercambio(46,49)
-    intercambio(49,50)
-    intercambio(47,53)
-    intercambio(49,52)
-    intercambio(51,48)
-    intercambio(48,53)
-    intercambio(53,52)
-    COMOQUIERAS()
+    
 
     local tradeo = display.newImageRect(grpPartida,"Imagenes/Construccion/tradeo.png", 400, 240)
     tradeo.x = display.contentCenterX-400
