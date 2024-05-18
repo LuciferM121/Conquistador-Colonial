@@ -564,7 +564,7 @@ local function agregarAdy()
         elseif j == 2 then
             for i = 1, 4 do
                 aristaClase[i+6].verticeI = verticeClase[q]
-                aristaClase[i+6].verticeF = verticeClase[i+8]
+                aristaClase[i+6].verticeF = verticeClase[q+8]
                 q = q + 2
             end
         elseif j==3 then
@@ -633,7 +633,9 @@ local function agregarAdy()
             for i =1, 4 do
                 aristaClase[i+62].verticeI = verticeClase[q]
                 aristaClase[i+62].verticeF = verticeClase[q+8]
+                q = q +2
             end
+            
         elseif j == 11  then
             for i = 1, 6 do
                 aristaClase[i+66].verticeI = verticeClase[i+47]
@@ -1009,7 +1011,7 @@ local function cambiarImagen2(event) --Coloca las casas
         imagenClicada.height = 70
         imagenClicada:removeEventListener("tap",cambiarImagen2)
         --actualizarRecursos()
-        print(posicion)
+        
         continuaCaminos(aristaClase[posicion])
     --end
     --banderaNoAdyacentes = true
@@ -1058,6 +1060,8 @@ local function hazLaLuz()
     intercambio(48,53)
     intercambio(53,52)
     COMOQUIERAS()
+
+
 end
 
 
