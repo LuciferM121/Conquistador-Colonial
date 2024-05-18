@@ -543,6 +543,7 @@ local function colocaImagenArs(x, y)
     arista.x = display.contentCenterX + x 
     arista.y = display.contentCenterY + y
     table.insert(aristas,arista)
+    arista.isVisible = false
 end
 
 
@@ -865,6 +866,58 @@ local function noSonAdyacentes(vertice1, vertice2)
     return true
 end
 
+local function activarCaminos()
+    for i = 1, 54 do
+        if verticeClase[i].jugador == jugadorActual then
+          for j = 1, 72 do
+            if aristaClase[j].verticeI == verticeClase[i] or aristaClase[j].verticeF == verticeClase[i] then
+                aristas[j].isVisible = true
+            end             
+          end  
+        end
+    end
+    
+end
+
+local function continuaCaminos(arista)
+    --[[for i = 1, 72 do
+        for j =1, 72 do
+            
+            if aristaClase[i].verticeI == aristaClase[j].verticeI then
+                --if aristaClase[j].isVisible == false then
+                    aristaClase[j].isVisible = true
+                --end
+            elseif aristaClase[i].verticeF == aristaClase[j].verticeI then
+                --if aristaClase[j].isVisible == false then
+                    aristaClase[j].isVisible = true
+                --end
+            end
+            
+        end
+    end]]
+    for j =1, 72 do
+        
+        if arista.verticeI == aristaClase[j].verticeI then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        elseif arista.verticeF == aristaClase[j].verticeI then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        elseif arista.verticeI == aristaClase[j].verticeF then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        elseif arista.verticeF == aristaClase[j].verticeF then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        end
+        
+    end
+end
+
 
 
 local function cambiarImagen(event) --Coloca las casas 
@@ -876,41 +929,44 @@ local function cambiarImagen(event) --Coloca las casas
             break
         end 
     end
-
-    local banderaNoAdyacentes = true
-    for i in ipairs(verticesC) do
-        if verticeClase[i].ocupado == true then
-            banderaNoAdyacentes = noSonAdyacentes(posicion,i)
-            if banderaNoAdyacentes == false then
-                break
+    if verticeClase[posicion].ocupado == false then
+        local banderaNoAdyacentes = true
+        for i in ipairs(verticesC) do
+            if verticeClase[i].ocupado == true then
+                banderaNoAdyacentes = noSonAdyacentes(posicion,i)
+                if banderaNoAdyacentes == false then
+                    break
+                end
             end
         end
-    end
 
 
-    if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
-        
-        verticeClase[posicion].ocupado = true
-        verticeClase[posicion].jugador = jugadorActual
-        verticeClase[posicion].tipoC = 1
-        if ronda ==1 then
-            jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
-        else
-            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
-            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
-            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
-            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+        if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
+            
+            verticeClase[posicion].ocupado = true
+            verticeClase[posicion].jugador = jugadorActual
+            verticeClase[posicion].tipoC = 1
+            if ronda ==1 then
+                jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
+            else
+                jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
+                jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
+                jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
+                jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+            end
+            imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
+            imagenClicada:toFront()
+            --imagenClicada:scale(5,5)
+            imagenClicada.width = 75
+            imagenClicada.height = 90
+            actualizarRecursos()
+            
         end
-        imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
-        --imagenClicada:scale(5,5)
-        imagenClicada.width = 75
-        imagenClicada.height = 90
-        actualizarRecursos()
-        
+        banderaNoAdyacentes = true
+        --print(posicion)
+        activarCaminos()
     end
-    banderaNoAdyacentes = true
-    --print(posicion)
-    
+        
 end
 
 local function cambiarImagen2(event) --Coloca las casas 
@@ -951,8 +1007,10 @@ local function cambiarImagen2(event) --Coloca las casas
         --imagenClicada:scale(5,5)
         imagenClicada.width = 75
         imagenClicada.height = 70
+        imagenClicada:removeEventListener("tap",cambiarImagen2)
         --actualizarRecursos()
-        
+        print(posicion)
+        continuaCaminos(aristaClase[posicion])
     --end
     --banderaNoAdyacentes = true
     --print(posicion)
