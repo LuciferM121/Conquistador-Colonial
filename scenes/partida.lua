@@ -142,6 +142,8 @@ local probHex = {}
 local hexagonosM = {}
 local verticesC = {}
 local verticeClase = {}
+local aristas = {}
+local aristaClase = {}
 
 --Variable para controlar las repeticiones de los hexagonos
 local rep = {0,0,0,0,0,0}
@@ -195,6 +197,8 @@ Camino = {
     ocupado = false,
     verticeI = nil,
     verticeF = nil,
+    inclinacion = 0,
+    jugador = 0
 }
 
 Jugador.__index = Jugador
@@ -534,6 +538,215 @@ local function generarVertices()
     end
 end
 
+local function colocaImagenArs(x, y)
+    local arista = display.newImageRect(grpPartida,"Imagenes/Construccion/circuloMoradito.png", 15, 15)
+    arista.x = display.contentCenterX + x 
+    arista.y = display.contentCenterY + y
+    table.insert(aristas,arista)
+end
+
+
+
+local function agregarAdy()
+    local q = 1
+    for j = 1, 11 do
+        if j == 1 then
+            for i = 1, 6 do
+                aristaClase[i].verticeI = verticeClase[i]
+                aristaClase[i].verticeF = verticeClase[i+1]
+                if i % 2 == 0 then
+                    aristaClase[i].inclinacion = 1
+                else
+                    aristaClase[i].inclinacion = 2
+                end
+            end
+        elseif j == 2 then
+            for i = 1, 4 do
+                aristaClase[i+6].verticeI = verticeClase[q]
+                aristaClase[i+6].verticeF = verticeClase[i+8]
+                q = q + 2
+            end
+        elseif j==3 then
+            for i = 1, 8 do
+                aristaClase[i+10].verticeI = verticeClase[i+7]
+                aristaClase[i+10].verticeF = verticeClase[i+8]
+                if i % 2 == 0 then
+                    aristaClase[i+10].inclinacion = 1
+                else
+                    aristaClase[i+10].inclinacion = 2
+                end
+            end
+        elseif j == 4 then
+            q = 8
+            for i =1, 5 do
+                aristaClase[i+18].verticeI = verticeClase[q]
+                aristaClase[i+18].verticeF = verticeClase[q+10]
+                q = q + 2
+            end
+        elseif j == 5 then
+            for i =1, 10 do
+                aristaClase[i+23].verticeI = verticeClase[i+16]
+                aristaClase[i+23].verticeF = verticeClase[i+17]
+                if i % 2 == 0 then
+                    aristaClase[i+23].inclinacion = 1
+                else
+                    aristaClase[i+23].inclinacion = 2
+                end
+            end
+        elseif j == 6 then
+            q = 17
+            for i =1, 6 do
+                aristaClase[i+33].verticeI = verticeClase[q]
+                aristaClase[i+33].verticeF = verticeClase[q+11]
+                q = q + 2
+            end
+        elseif j == 7 then
+            for i =1, 10 do
+                aristaClase[i+39].verticeI = verticeClase[i+27]
+                aristaClase[i+39].verticeF = verticeClase[i+28]
+                if i % 2 == 0 then
+                    aristaClase[i+39].inclinacion = 2
+                else
+                    aristaClase[i+39].inclinacion = 1
+                end
+            end
+        elseif j == 8 then
+            q = 29
+            for i =1, 5 do
+                aristaClase[i+49].verticeI = verticeClase[q]
+                aristaClase[i+49].verticeF = verticeClase[q+10]
+                q = q + 2
+            end
+        elseif j==9 then
+            for i = 1, 8 do
+                aristaClase[i+54].verticeI = verticeClase[i+38]
+                aristaClase[i+54].verticeF = verticeClase[i+39]
+                if i % 2 == 0 then
+                    aristaClase[i+54].inclinacion = 2
+                else
+                    aristaClase[i+54].inclinacion = 1
+                end
+            end
+        elseif j == 10 then
+            q = 40
+            for i =1, 4 do
+                aristaClase[i+62].verticeI = verticeClase[q]
+                aristaClase[i+62].verticeF = verticeClase[q+8]
+            end
+        elseif j == 11  then
+            for i = 1, 6 do
+                aristaClase[i+66].verticeI = verticeClase[i+47]
+                aristaClase[i+66].verticeF = verticeClase[i+48]
+                if i % 2 == 0 then
+                    aristaClase[i+66].inclinacion = 2
+                else
+                    aristaClase[i+66].inclinacion = 1
+                end
+            end
+
+
+        end
+        
+        
+    end
+
+end
+
+local function generarAristas()
+    for i = 1, 72 do
+        aristaClase[i] = Camino:nuevo()
+    end
+    agregarAdy()
+end
+
+
+
+local function dibujarArista()
+    local x = -285
+    local y = -355
+    for j = 1, 11 do
+        if j == 2 then
+            x = -316
+            y = -295
+            for i =1, 4 do
+                colocaImagenArs(x, y)
+                x = x + 128 
+            end
+        elseif j == 1  then
+            for i = 1, 6 do
+                colocaImagenArs(x, y)
+                x = x + 65 
+            end
+        elseif j==3 then
+            x = -350
+            y = -240
+            for i = 1, 8 do
+                colocaImagenArs(x, y)
+                x = x + 65 
+            end
+        elseif j == 4 then
+            x = -380
+            y = -185
+            for i =1, 5 do
+                colocaImagenArs(x, y)
+                x = x + 128 
+            end
+        elseif j == 5 then
+            x = -415
+            y = -128
+            for i =1, 10 do
+                colocaImagenArs(x, y)
+                x = x + 65
+            end
+        elseif j == 6 then
+            x = -445
+            y = -70
+            for i =1, 6 do
+                colocaImagenArs(x, y)
+                x = x + 128 
+            end
+        elseif j == 7 then
+            x = -415
+            y = -20
+            for i =1, 10 do
+                colocaImagenArs(x, y)
+                x = x + 65
+            end
+        elseif j == 8 then
+            x = -380
+            y = 44
+            for i =1, 5 do
+                colocaImagenArs(x, y)
+                x = x + 128 
+            end
+        elseif j==9 then
+            x = -350
+            y = 97
+            for i = 1, 8 do
+                colocaImagenArs(x, y)
+                x = x + 65 
+            end
+        elseif j == 10 then
+            x = -315
+            y = 155
+            for i =1, 4 do
+                colocaImagenArs(x, y)
+                x = x + 128 
+            end
+        elseif j == 11  then
+            x = -283
+            y = 210
+            for i = 1, 6 do
+                colocaImagenArs(x, y)
+                x = x + 65
+            end
+        end 
+   
+    end 
+    generarAristas()
+    
+end
+
 
 local function dibujarVertices()
     local x = -255
@@ -633,24 +846,6 @@ local function verificarRecursos(i)
     return false
 end
 
-local function casasDistancia()
-    for i = 1, 54 do
-        if verticeClase[i].ocupado == true then
-            if i ~= 1 and i ~= 1 and i ~= 8 and 17 ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 then
-                if verticeClase[i-1].activo == true then
-                    verticeClase[i-1].activo = false
-                end
-            end
-            if i > 7 then
-                if verticeClase[i-7].activo == true then
-                    verticeClase[i-7].activo = false
-                end
-            end
-        end
-    end
-end
-
-
 
 local function noSonAdyacentes(vertice1, vertice2)
     -- Verificar si vertice2 no está en la lista de adyacencia de vertice1
@@ -718,6 +913,57 @@ local function cambiarImagen(event) --Coloca las casas
     
 end
 
+local function cambiarImagen2(event) --Coloca las casas 
+    local imagenClicada = event.target
+    local posicion
+    for i, imagen in ipairs(aristas) do
+        if imagen == imagenClicada then
+            posicion = i
+            break
+        end 
+    end
+
+    --local banderaNoAdyacentes = true
+    --[[for i in ipairs(aristaClase) do
+        if verticeClase[i].ocupado == true then
+            banderaNoAdyacentes = noSonAdyacentes(posicion,i)
+            if banderaNoAdyacentes == false then
+                break
+            end
+        end
+    end]]
+
+
+    --if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
+        
+        aristaClase[posicion].ocupado = true
+        aristaClase[posicion].jugador = jugadorActual
+        --verticeClase[posicion].tipoC = 1
+        --[[if ronda ==1 then
+            jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
+        else
+            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
+            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
+            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
+            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+        end]]
+        imagenClicada.fill = { type="image", filename="Imagenes/caminos/"..jugadorActual..aristaClase[posicion].inclinacion..".png" }
+        --imagenClicada:scale(5,5)
+        imagenClicada.width = 75
+        imagenClicada.height = 70
+        --actualizarRecursos()
+        
+    --end
+    --banderaNoAdyacentes = true
+    --print(posicion)
+    
+end
+
+local function COMOQUIERAS2()  --Les agrega la funcion de que sis on tocadas se puedan convertir a casa o ciudad. 
+    for i = 1, 72 do
+        aristas[i]:addEventListener("tap",cambiarImagen2)
+    end
+end
 
 
 local function COMOQUIERAS()  --Les agrega la funcion de que sis on tocadas se puedan convertir a casa o ciudad. 
@@ -847,7 +1093,7 @@ function scene:create(event)
     usuario4.y = display.contentHeight-1000
 
     
-    jugadores[1] = Jugador:nuevo("Evan")
+    jugadores[1] = Jugador:nuevo("Evan") --Verde
     jugadores[1].numero = 1
     usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
@@ -946,8 +1192,8 @@ function scene:create(event)
     tradeo.x = display.contentCenterX-400
     tradeo.y = display.contentHeight-100
 
-
-
+    dibujarArista()
+    COMOQUIERAS2()
     
 
     boton:addEventListener("tap", pasarTurno) --Se le agrega el evento al objeto para pasar Turno
