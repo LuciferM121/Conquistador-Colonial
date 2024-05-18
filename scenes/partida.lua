@@ -55,8 +55,6 @@ local imgCartas = {
 
 --Son arreglos para guardar las cartas que aparecen en la pantalla
 local cartasjugador = {{}, {}, {}, {}}
-
-
     local grafo = {
         {2,9,nil},
         {1,3,nil},
@@ -142,8 +140,6 @@ local probHex = {}
 local hexagonosM = {}
 local verticesC = {}
 local verticeClase = {}
-local aristas = {}
-local aristaClase = {}
 
 --Variable para controlar las repeticiones de los hexagonos
 local rep = {0,0,0,0,0,0}
@@ -178,7 +174,7 @@ Jugador = {
     cartas3 = 0, --ladrillo
     cartas4 = 0, --vacas 
     cartas5 = 0, --roca
-    cartas6 = 0,  --especiales
+    cartas6 = 0, --especiales
     --cartasR = {}
     casaL = 2,
     caminoL = 2
@@ -197,8 +193,6 @@ Camino = {
     ocupado = false,
     verticeI = nil,
     verticeF = nil,
-    inclinacion = 0,
-    jugador = 0
 }
 
 Jugador.__index = Jugador
@@ -285,6 +279,7 @@ local function verOcupacion(j, i)
         aumentar(numeroHexagonos[i][1], verticeClase[j].jugador)
     end
 end
+
 local function obtenerRecursos()
     local probabilidad = dice1 + dice2
     --print("probabilidad: ",probabilidad)
@@ -313,15 +308,12 @@ local function actualizaDado() --Función para cambiar la imagen de los dados
     end
 end
 
-
-
 local function actualizarTextoTiempo()
     local minutos = math.floor(tiempoRestante / 60)
     local segundos = tiempoRestante % 60
     local tiempoFormateado = string.format("%02d:%02d", minutos, segundos)
     textoTiempo.text = tiempoFormateado
 end
-
 
 local function actualizarRecursos() --La funcion mas larga, es para actualizar las cartas de los jugadores, si usted que lee esto tiene una idea para hacerla corta, adelante
     for i =1, 4 do
@@ -377,7 +369,6 @@ local function actualizarRecursos() --La funcion mas larga, es para actualizar l
         end
     end
 end
-
 
 local function actualizarTemporizador()
     tiempoRestante = tiempoRestante - 1
@@ -443,13 +434,6 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
     actualizarTextoTiempo()
 end
-
-
-
-
-
-
-
 
 local function dibujarNumeros()
     --NUMEROS
@@ -536,215 +520,6 @@ local function generarVertices()
     for i = 1, 54 do
         verticeClase[i] = Vertice:nuevo()
     end
-end
-
-local function colocaImagenArs(x, y)
-    local arista = display.newImageRect(grpPartida,"Imagenes/Construccion/circuloMoradito.png", 15, 15)
-    arista.x = display.contentCenterX + x 
-    arista.y = display.contentCenterY + y
-    table.insert(aristas,arista)
-end
-
-
-
-local function agregarAdy()
-    local q = 1
-    for j = 1, 11 do
-        if j == 1 then
-            for i = 1, 6 do
-                aristaClase[i].verticeI = verticeClase[i]
-                aristaClase[i].verticeF = verticeClase[i+1]
-                if i % 2 == 0 then
-                    aristaClase[i].inclinacion = 1
-                else
-                    aristaClase[i].inclinacion = 2
-                end
-            end
-        elseif j == 2 then
-            for i = 1, 4 do
-                aristaClase[i+6].verticeI = verticeClase[q]
-                aristaClase[i+6].verticeF = verticeClase[i+8]
-                q = q + 2
-            end
-        elseif j==3 then
-            for i = 1, 8 do
-                aristaClase[i+10].verticeI = verticeClase[i+7]
-                aristaClase[i+10].verticeF = verticeClase[i+8]
-                if i % 2 == 0 then
-                    aristaClase[i+10].inclinacion = 1
-                else
-                    aristaClase[i+10].inclinacion = 2
-                end
-            end
-        elseif j == 4 then
-            q = 8
-            for i =1, 5 do
-                aristaClase[i+18].verticeI = verticeClase[q]
-                aristaClase[i+18].verticeF = verticeClase[q+10]
-                q = q + 2
-            end
-        elseif j == 5 then
-            for i =1, 10 do
-                aristaClase[i+23].verticeI = verticeClase[i+16]
-                aristaClase[i+23].verticeF = verticeClase[i+17]
-                if i % 2 == 0 then
-                    aristaClase[i+23].inclinacion = 1
-                else
-                    aristaClase[i+23].inclinacion = 2
-                end
-            end
-        elseif j == 6 then
-            q = 17
-            for i =1, 6 do
-                aristaClase[i+33].verticeI = verticeClase[q]
-                aristaClase[i+33].verticeF = verticeClase[q+11]
-                q = q + 2
-            end
-        elseif j == 7 then
-            for i =1, 10 do
-                aristaClase[i+39].verticeI = verticeClase[i+27]
-                aristaClase[i+39].verticeF = verticeClase[i+28]
-                if i % 2 == 0 then
-                    aristaClase[i+39].inclinacion = 2
-                else
-                    aristaClase[i+39].inclinacion = 1
-                end
-            end
-        elseif j == 8 then
-            q = 29
-            for i =1, 5 do
-                aristaClase[i+49].verticeI = verticeClase[q]
-                aristaClase[i+49].verticeF = verticeClase[q+10]
-                q = q + 2
-            end
-        elseif j==9 then
-            for i = 1, 8 do
-                aristaClase[i+54].verticeI = verticeClase[i+38]
-                aristaClase[i+54].verticeF = verticeClase[i+39]
-                if i % 2 == 0 then
-                    aristaClase[i+54].inclinacion = 2
-                else
-                    aristaClase[i+54].inclinacion = 1
-                end
-            end
-        elseif j == 10 then
-            q = 40
-            for i =1, 4 do
-                aristaClase[i+62].verticeI = verticeClase[q]
-                aristaClase[i+62].verticeF = verticeClase[q+8]
-            end
-        elseif j == 11  then
-            for i = 1, 6 do
-                aristaClase[i+66].verticeI = verticeClase[i+47]
-                aristaClase[i+66].verticeF = verticeClase[i+48]
-                if i % 2 == 0 then
-                    aristaClase[i+66].inclinacion = 2
-                else
-                    aristaClase[i+66].inclinacion = 1
-                end
-            end
-
-
-        end
-        
-        
-    end
-
-end
-
-local function generarAristas()
-    for i = 1, 72 do
-        aristaClase[i] = Camino:nuevo()
-    end
-    agregarAdy()
-end
-
-
-
-local function dibujarArista()
-    local x = -285
-    local y = -355
-    for j = 1, 11 do
-        if j == 2 then
-            x = -316
-            y = -295
-            for i =1, 4 do
-                colocaImagenArs(x, y)
-                x = x + 128 
-            end
-        elseif j == 1  then
-            for i = 1, 6 do
-                colocaImagenArs(x, y)
-                x = x + 65 
-            end
-        elseif j==3 then
-            x = -350
-            y = -240
-            for i = 1, 8 do
-                colocaImagenArs(x, y)
-                x = x + 65 
-            end
-        elseif j == 4 then
-            x = -380
-            y = -185
-            for i =1, 5 do
-                colocaImagenArs(x, y)
-                x = x + 128 
-            end
-        elseif j == 5 then
-            x = -415
-            y = -128
-            for i =1, 10 do
-                colocaImagenArs(x, y)
-                x = x + 65
-            end
-        elseif j == 6 then
-            x = -445
-            y = -70
-            for i =1, 6 do
-                colocaImagenArs(x, y)
-                x = x + 128 
-            end
-        elseif j == 7 then
-            x = -415
-            y = -20
-            for i =1, 10 do
-                colocaImagenArs(x, y)
-                x = x + 65
-            end
-        elseif j == 8 then
-            x = -380
-            y = 44
-            for i =1, 5 do
-                colocaImagenArs(x, y)
-                x = x + 128 
-            end
-        elseif j==9 then
-            x = -350
-            y = 97
-            for i = 1, 8 do
-                colocaImagenArs(x, y)
-                x = x + 65 
-            end
-        elseif j == 10 then
-            x = -315
-            y = 155
-            for i =1, 4 do
-                colocaImagenArs(x, y)
-                x = x + 128 
-            end
-        elseif j == 11  then
-            x = -283
-            y = 210
-            for i = 1, 6 do
-                colocaImagenArs(x, y)
-                x = x + 65
-            end
-        end 
-   
-    end 
-    generarAristas()
-    
 end
 
 
@@ -846,6 +621,22 @@ local function verificarRecursos(i)
     return false
 end
 
+local function casasDistancia()
+    for i = 1, 54 do
+        if verticeClase[i].ocupado == true then
+            if i ~= 1 and i ~= 1 and i ~= 8 and 17 ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 and i ~= 1 then
+                if verticeClase[i-1].activo == true then
+                    verticeClase[i-1].activo = false
+                end
+            end
+            if i > 7 then
+                if verticeClase[i-7].activo == true then
+                    verticeClase[i-7].activo = false
+                end
+            end
+        end
+    end
+end
 
 local function noSonAdyacentes(vertice1, vertice2)
     -- Verificar si vertice2 no está en la lista de adyacencia de vertice1
@@ -864,8 +655,6 @@ local function noSonAdyacentes(vertice1, vertice2)
 
     return true
 end
-
-
 
 local function cambiarImagen(event) --Coloca las casas 
     local imagenClicada = event.target
@@ -886,7 +675,6 @@ local function cambiarImagen(event) --Coloca las casas
             end
         end
     end
-
 
     if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
         
@@ -913,57 +701,6 @@ local function cambiarImagen(event) --Coloca las casas
     
 end
 
-local function cambiarImagen2(event) --Coloca las casas 
-    local imagenClicada = event.target
-    local posicion
-    for i, imagen in ipairs(aristas) do
-        if imagen == imagenClicada then
-            posicion = i
-            break
-        end 
-    end
-
-    --local banderaNoAdyacentes = true
-    --[[for i in ipairs(aristaClase) do
-        if verticeClase[i].ocupado == true then
-            banderaNoAdyacentes = noSonAdyacentes(posicion,i)
-            if banderaNoAdyacentes == false then
-                break
-            end
-        end
-    end]]
-
-
-    --if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
-        
-        aristaClase[posicion].ocupado = true
-        aristaClase[posicion].jugador = jugadorActual
-        --verticeClase[posicion].tipoC = 1
-        --[[if ronda ==1 then
-            jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
-        else
-            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
-            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
-            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
-            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
-        end]]
-        imagenClicada.fill = { type="image", filename="Imagenes/caminos/"..jugadorActual..aristaClase[posicion].inclinacion..".png" }
-        --imagenClicada:scale(5,5)
-        imagenClicada.width = 75
-        imagenClicada.height = 70
-        --actualizarRecursos()
-        
-    --end
-    --banderaNoAdyacentes = true
-    --print(posicion)
-    
-end
-
-local function COMOQUIERAS2()  --Les agrega la funcion de que sis on tocadas se puedan convertir a casa o ciudad. 
-    for i = 1, 72 do
-        aristas[i]:addEventListener("tap",cambiarImagen2)
-    end
-end
 
 
 local function COMOQUIERAS()  --Les agrega la funcion de que sis on tocadas se puedan convertir a casa o ciudad. 
@@ -1002,15 +739,349 @@ local function hazLaLuz()
     COMOQUIERAS()
 end
 
+cartasDadas = 0
+
+local seleccionParaDar
+
+local function arbolTrade()
+    local i = jugadorActual
+    jugadores[i].cartas1 = jugadores[i].cartas1 - 1
+    arbolUser.isVisible=false
+    cartasDadas = cartasDadas + 1
+    seleccionParaDar()
+end
+
+local function trigoTrade()
+    local i = jugadorActual
+    jugadores[i].cartas2 = jugadores[i].cartas2 - 1
+    trigoUser.isVisible=false
+    cartasDadas = cartasDadas + 1
+    seleccionParaDar()
+end
+
+local function rocaTrade()
+    local i = jugadorActual
+    jugadores[i].cartas5 = jugadores[i].cartas5 - 1
+    rocaUser.isVisible = false
+    cartasDadas = cartasDadas + 1
+    seleccionParaDar()
+end
+
+local function ladrilloTrade()
+    local i = jugadorActual
+    jugadores[i].cartas3 = jugadores[i].cartas3 - 1
+    ladrilloUSer.isVisible = false
+    cartasDadas = cartasDadas + 1
+    seleccionParaDar()
+end
+
+local function vacaTrade()
+    local i = jugadorActual
+    jugadores[i].cartas4 = jugadores[i].cartas4 - 1
+    vacaUser.isVisible = false
+    cartasDadas = cartasDadas + 1
+    seleccionParaDar()
+end
+ 
+function seleccionParaDar()
+
+    if cartasDadas == 3 then
+        
+        actualizarRecursos()
+    
+        cartasEspeciales.isVisible = false
+        arbolBank.isVisible = false
+        ladrilloBank.isVisible = false
+        vacaBank.isVisible = false
+        rocaBank.isVisible = false
+        trigoBank.isVisible = false
+
+        arbolUser.isVisible = false
+        ladrilloUser.isVisible = false
+        vacaUser.isVisible = false
+        rocaUser.isVisible = false
+        trigoUser.isVisible = false
+        cartasDadas = 0
+        print("HOla MMundo")
+
+        timer.resume(temporizador)
+        actualizarTextoTiempo()
+    end
+    
+    local i = jugadorActual
+    if jugadores[i].cartas1 == 0 then 
+        arbolUser.fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        arbolUser.isVisible = false
+    elseif jugadores[i].cartas1 >=3 then
+        arbolUser.fill = { type="image", filename="Imagenes/CartasM/cartas13.png" }
+        arbolUser.y = display.contentHeight - 325
+        arbolUser.x = display.contentWidth - 2200
+        arbolUser.isVisible = true
+    elseif jugadores[i].cartas1 ==2 then
+        arbolUser.fill = { type="image", filename="Imagenes/CartasM/cartas12.png" }
+        arbolUser.y = display.contentHeight - 325
+        arbolUser.x = display.contentWidth - 2200
+        arbolUser.isVisible = true
+    else
+        arbolUser.fill = { type="image", filename="Imagenes/CartasM/cartas11.png" }
+        arbolUser.y = display.contentHeight - 325
+        arbolUser.x = display.contentWidth - 2200
+        arbolUser.isVisible = true
+    end
+
+    if jugadores[i].cartas2 == 0 then 
+        trigoUser.fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        trigoUser.isVisible = false
+    elseif jugadores[i].cartas2 >=3 then
+        trigoUser.fill = { type="image", filename="Imagenes/CartasM/cartas23.png" }
+        trigoUser.y = display.contentHeight - 625
+        trigoUser.x = display.contentWidth - 2200
+        trigoUser.isVisible = true
+    elseif jugadores[i].cartas2 ==2 then
+        trigoUser.fill = { type="image", filename="Imagenes/CartasM/cartas22.png" }
+        trigoUser.y = display.contentHeight - 625
+        trigoUser.x = display.contentWidth - 2200
+        trigoUser.isVisible = true
+    else
+        trigoUser.fill = { type="image", filename="Imagenes/CartasM/cartas21.png" }
+        trigoUser.y = display.contentHeight - 625
+        trigoUser.x = display.contentWidth - 2200
+        trigoUser.isVisible = true
+    end
+
+    if jugadores[i].cartas3 == 0 then 
+        ladrilloUser.fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        ladrilloUser.isVisible = false
+    elseif jugadores[i].cartas3 >=3 then
+        ladrilloUser.fill = { type="image", filename="Imagenes/CartasM/cartas33.png" }
+        ladrilloUser.y = display.contentHeight - 475
+        ladrilloUser.x = display.contentWidth - 2200
+        ladrilloUser.isVisible = true
+    elseif jugadores[i].cartas3 ==2 then
+        ladrilloUser.fill = { type="image", filename="Imagenes/CartasM/cartas32.png" }
+        ladrilloUser.y = display.contentHeight - 475
+        ladrilloUser.x = display.contentWidth - 2200
+        ladrilloUser.isVisible = true
+    else
+        ladrilloUser.fill = { type="image", filename="Imagenes/CartasM/cartas31.png" }
+        ladrilloUser.y = display.contentHeight - 475
+        ladrilloUser.x = display.contentWidth - 2200
+        ladrilloUser.isVisible = true
+    end
+
+    if jugadores[i].cartas4 == 0 then 
+        vacaUser.fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        vacaUser.isVisible = false
+    elseif jugadores[i].cartas4 >=3 then
+        vacaUser.fill = { type="image", filename="Imagenes/CartasM/cartas43.png" }
+        vacaUser.y = display.contentHeight - 775
+        vacaUser.x = display.contentWidth - 2200
+        vacaUser.isVisible = true
+    elseif jugadores[i].cartas4 ==2 then
+        vacaUser.fill = { type="image", filename="Imagenes/CartasM/cartas42.png" }
+        vacaUser.y = display.contentHeight - 775
+        vacaUser.x = display.contentWidth - 2200
+        vacaUser.isVisible = true
+    else
+        vacaUser.fill = { type="image", filename="Imagenes/CartasM/cartas41.png" }
+        vacaUser.y = display.contentHeight - 775
+        vacaUser.x = display.contentWidth - 2200
+        vacaUser.isVisible = true
+    end
+
+    if jugadores[i].cartas5 == 0 then 
+        rocaUser.fill = { type="image", filename="Imagenes/CartasM/vacia.png" }
+        rocaUser.isVisible = false
+    elseif jugadores[i].cartas5 >=3 then
+        rocaUser.fill = { type="image", filename="Imagenes/CartasM/cartas53.png" }
+        rocaUser.y = display.contentHeight - 925
+        rocaUser.x = display.contentWidth - 2200
+        rocaUser.isVisible = true
+    elseif jugadores[i].cartas5 ==2 then
+        rocaUser.fill = { type="image", filename="Imagenes/CartasM/cartas52.png" }
+        rocaUser.y = display.contentHeight - 925
+        rocaUser.x = display.contentWidth - 2200
+        rocaUser.isVisible = true
+    else
+        rocaUser.fill = { type="image", filename="Imagenes/CartasM/cartas51.png" }
+        rocaUser.y = display.contentHeight - 925
+        rocaUser.x = display.contentWidth - 2200
+        rocaUser.isVisible = true
+    end
+
+    
+    arbolUser:addEventListener("tap", arbolTrade)
+    trigoUser:addEventListener("tap", trigoTrade)
+    ladrilloUser:addEventListener("tap", ladrilloTrade)
+    vacaUser:addEventListener("tap", vacaTrade)
+    rocaUser:addEventListener("tap", rocaTrade)
+end
 
 
+--tradeo de especiales como los del teleton
+local function tradearCartaTeleton()
+    
+    if jugadorActual ==1 then 
+        jugadores[1].cartas6 = jugadores[1].cartas6 +1
+    elseif jugadorActual ==2 then
+        jugadores[2].cartas6 = jugadores[2].cartas6 +1
+    elseif jugadorActual ==3 then
+        jugadores[3].cartas6 = jugadores[3].cartas6 +1
+    else
+        jugadores[4].cartas6 = jugadores[4].cartas6 +1
+    end
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    seleccionParaDar()
+end
+--tradeo de arbol
+local function tradearCartaArbol()
+    
+    if jugadorActual ==1 then 
+        jugadores[1].cartas1 = jugadores[1].cartas1 +1
+    elseif jugadorActual ==2 then
+        jugadores[2].cartas1 = jugadores[2].cartas1 +1
+    elseif jugadorActual ==3 then
+        jugadores[3].cartas1 = jugadores[3].cartas1 +1
+    else
+        jugadores[4].cartas1 = jugadores[4].cartas1 +1
+    end
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDar() 
+end
+--tradeo de ladrillo
+local function tradearCartaLadrillo()
+    
+    if jugadorActual ==1 then 
+        jugadores[1].cartas3 = jugadores[1].cartas3 +1
+    elseif jugadorActual ==2 then
+        jugadores[2].cartas3 = jugadores[2].cartas3 +1
+    elseif jugadorActual ==3 then
+        jugadores[3].cartas3 = jugadores[3].cartas3 +1
+    else
+        jugadores[4].cartas3 = jugadores[4].cartas3 +1
+    end
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDar()
+end
+-- trade de trigo
+local function tradearCartaTrigo()
+    if jugadorActual ==1 then 
+        jugadores[1].cartas2 = jugadores[1].cartas2 +1
+    elseif jugadorActual ==2 then
+        jugadores[2].cartas2 = jugadores[2].cartas2 +1
+    elseif jugadorActual ==3 then
+        jugadores[3].cartas2 = jugadores[3].cartas2 +1
+    else
+        jugadores[4].cartas2 = jugadores[4].cartas2 +1
+    end
+    rocaBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDar()
+end
+--tradeo de vacas
+local function tradearCartaVaca()
+    if jugadorActual ==1 then 
+        jugadores[1].cartas4 = jugadores[1].cartas4 +1
+    elseif jugadorActual ==2 then
+        jugadores[2].cartas4 = jugadores[2].cartas4 +1
+    elseif jugadorActual ==3 then
+        jugadores[3].cartas4 = jugadores[3].cartas4 +1
+    else
+        jugadores[4].cartas4 = jugadores[4].cartas4 +1
+    end
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDar()
+end
+--tradeo de rocas
+local function tradearCartaRoca()
+    
+    if jugadorActual ==1 then 
+        jugadores[1].cartas5 = jugadores[1].cartas5 +1
+    elseif jugadorActual ==2 then
+        jugadores[2].cartas5 = jugadores[2].cartas5 +1
+    elseif jugadorActual ==3 then
+        jugadores[3].cartas5 = jugadores[3].cartas5 +1
+    else
+        jugadores[4].cartas5 = jugadores[4].cartas5 +1
+    end
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDar()
+end
 
+--Funciones para tradeo
+local function tradear()
+    timer.pause(temporizador)
+    actualizarTextoTiempo()
+    --Banco
+    cartasEspeciales = display.newImageRect(grpPartida,"Imagenes/CartasM/especiales.png", 100, 140)
+    rocaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas53.png", 100, 140)
+    vacaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas43.png", 100, 140)
+    trigoBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas33.png", 100, 140)
+    arbolBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas13.png", 100, 140)
+    ladrilloBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas23.png", 100, 140)
+    
+    especialesUser = display.newImageRect(grpPartida,"Imagenes/CartasM/especiales.png", 100, 140)
+    rocaUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas53.png", 100, 140)
+    vacaUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas43.png", 100, 140)
+    trigoUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas33.png", 100, 140)
+    arbolUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas13.png", 100, 140)
+    ladrilloUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas23.png", 100, 140)
 
+    especialesUser.isVisible = false
+    rocaUser.isVisible = false
+    vacaUser.isVisible = false
+    trigoUser.isVisible = false
+    arbolUser.isVisible = false
+    ladrilloUser.isVisible = false
 
+    cartasEspeciales.x = display.contentWidth - 1900
+    cartasEspeciales.y = display.contentHeight- 175
 
+    arbolBank.x = display.contentWidth - 1900
+    arbolBank.y = display.contentHeight - 325
+    
+    ladrilloBank.x = display.contentWidth - 1900
+    ladrilloBank.y = display.contentHeight- 475
 
+    trigoBank.x = display.contentWidth - 1900
+    trigoBank.y = display.contentHeight- 625
 
-
+    vacaBank.x = display.contentWidth - 1900
+    vacaBank.y = display.contentHeight- 775
+    
+    rocaBank.x = display.contentWidth - 1900
+    rocaBank.y = display.contentHeight- 925
+    
+    cartasEspeciales:addEventListener("tap", tradearCartaTeleton)
+    arbolBank:addEventListener("tap", tradearCartaArbol)
+    ladrilloBank:addEventListener("tap", tradearCartaLadrillo)
+    trigoBank:addEventListener("tap", tradearCartaTrigo)
+    vacaBank:addEventListener("tap", tradearCartaVaca)
+    rocaBank:addEventListener("tap", tradearCartaRoca)
+end
 
 --Eventos de la escena
 function scene:create(event)
@@ -1035,9 +1106,11 @@ function scene:create(event)
     local configuracion = display.newImageRect(grpPartida, "Imagenes/CartasM/11.png", 95, 130)
     configuracion.x = 70
     configuracion.y = 70
+    
     --Hexagonos
     dibujarHexagonos()
-        --Probabilidades
+    
+    --Probabilidades
     dibujarNumeros()
     hazLaLuz()
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
@@ -1045,8 +1118,7 @@ function scene:create(event)
     -- Inicializar el objeto de texto con el tiempo restante inicial
     actualizarTextoTiempo()
 
-
-        --Barcos
+    --Barcos
     local barco = display.newImageRect(grpPartida,"Imagenes/barco1.png", 200, 120)
     barco.x = display.contentCenterX -70
     barco.y = 100
@@ -1093,7 +1165,7 @@ function scene:create(event)
     usuario4.y = display.contentHeight-1000
 
     
-    jugadores[1] = Jugador:nuevo("Evan") --Verde
+    jugadores[1] = Jugador:nuevo("Evan")
     jugadores[1].numero = 1
     usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
@@ -1134,32 +1206,6 @@ function scene:create(event)
     --jugadores[3].cartas3 = 1
     --jugadores[4].cartas5 = 2
 
-
-    --Banco
-    local cartasEspeciales = display.newImageRect(grpPartida,"Imagenes/CartasM/tcartas.png", 100, 140)
-    cartasEspeciales.x = display.contentWidth - 650
-    cartasEspeciales.y = display.contentHeight- 90
-
-    local arbolBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas11.png", 100, 140)
-    arbolBank.x = display.contentWidth - 540
-    arbolBank.y = display.contentHeight - 90
-
-    local ladrilloBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas21.png", 100, 140)
-    ladrilloBank.x = display.contentWidth - 430
-    ladrilloBank.y = display.contentHeight- 90
-
-    local trigoBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas31.png", 100, 140)
-    trigoBank.x = display.contentWidth - 320
-    trigoBank.y = display.contentHeight- 90
-
-    local vacaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas41.png", 100, 140)
-    vacaBank.x = display.contentWidth - 210 
-    vacaBank.y = display.contentHeight- 90
-
-    local rocaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas51.png", 100, 140)
-    rocaBank.x = display.contentWidth -100
-    rocaBank.y = display.contentHeight- 90
-
     --Dados
     dado1 = display.newImageRect(grpPartida,"Imagenes/dado1.png", 200, 200)
     dado1.x = display.contentWidth -350
@@ -1192,14 +1238,10 @@ function scene:create(event)
     tradeo.x = display.contentCenterX-400
     tradeo.y = display.contentHeight-100
 
-    dibujarArista()
-    COMOQUIERAS2()
-    
-
     boton:addEventListener("tap", pasarTurno) --Se le agrega el evento al objeto para pasar Turno
     dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
     dado2:addEventListener("tap", actualizaDado)
-
+    tradeo:addEventListener("tap", tradear)
 end
 
 function scene:show(event)
@@ -1207,7 +1249,6 @@ function scene:show(event)
     elseif (event.phase == "did") then
     end
 end
-
 
 function scene:hide(event)
     if(event.phase == "will") then
@@ -1225,7 +1266,5 @@ scene:addEventListener("create", scene)
 scene:addEventListener("show", scene)
 scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
-
-
 
 return scene
