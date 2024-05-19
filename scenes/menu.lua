@@ -11,7 +11,7 @@ local scene = composer.newScene()
 local grpMenu
 
 -- Funciones
-local function jugar()
+local function jugar1()
     composer.gotoScene("scenes.partida");
     
 end
@@ -26,22 +26,31 @@ function scene:create(event)
     background.x = cx
     background.y = cy
 
-    local lblTitle = display.newText("Conquistador Colonial", cx, 100, native.systemFont, 100)
+    local lblTitle = display.newText("Conquistador Colonial", cx, cy, native.systemFont, 100)
     lblTitle.fill = { 0, 0, 0 }
     grpMenu:insert(lblTitle)
 
-    local btnPlay = display.newRoundedRect( grpMenu, cx, cy, 500, 200, 20)
-    btnPlay.fill = { 1, 1, 1 }
-    btnPlay.alpha = 0.4;
+    local logo = display.newImageRect(grpMenu,"Imagenes/image.png", 500,500)
+    logo.x = cx
+    logo.y = 250
 
-    local lblPlay = display.newText("Play", cx, cy + 4, native.systemFont, 50)
-    lblPlay.fill = { 0, 0, 0 } 
-    grpMenu:insert(lblPlay)
+    local jugar = display.newImageRect(grpMenu,"Imagenes/Menu/jugar.png", 600,360)
+    jugar.x = cx - 400
+    jugar.y = cy + 200
+   
+    local opciones = display.newImageRect(grpMenu,"Imagenes/Menu/opciones.png", 600,360)
+    opciones.x = cx + 400 
+    opciones.y = cy + 200
 
-    btnPlay:addEventListener("tap", jugar)
-
+    local salir = display.newImageRect(grpMenu,"Imagenes/Menu/salir.png", 600,360)
+    salir.x = cx 
+    salir.y = cy + 400
+    
+    jugar:addEventListener("tap", jugar1)
 
 end
+
+
 
 function scene:show(event)
     if(event.phase == "will") then
