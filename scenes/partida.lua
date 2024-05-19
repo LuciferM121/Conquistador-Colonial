@@ -160,6 +160,10 @@ local textoTiempo = display.newText("", display.contentWidth-330, display.conten
 local tiempoTotal = 20
 local tiempoRestante = tiempoTotal
 local temporizador
+local seguir
+local background2
+local pasar
+
 
 
 --Creacion de clases
@@ -231,6 +235,14 @@ function Camino:nuevo()
 end
 
 -- Funciones
+
+local function pasalo()
+    background2.isVisible = true
+    pasar.isVisible = true
+    seguir.isVisible = true
+end
+
+
 local function colocarHexagonos() --Funcion para randomizar el tipo de hexagono
     local valor
     local bandera = false
@@ -406,7 +418,12 @@ local function actualizarTemporizador()
     end
 end
 
+
+
 local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
+    background2.isVisible = false
+    pasar.isVisible = false
+    seguir.isVisible = false
     turno = true
     if jugadorActual ==1 then 
         jugando.text = jugadores[2].nombre
@@ -882,21 +899,6 @@ local function activarCaminos()
 end
 
 local function continuaCaminos(arista)
-    --[[for i = 1, 72 do
-        for j =1, 72 do
-            
-            if aristaClase[i].verticeI == aristaClase[j].verticeI then
-                --if aristaClase[j].isVisible == false then
-                    aristaClase[j].isVisible = true
-                --end
-            elseif aristaClase[i].verticeF == aristaClase[j].verticeI then
-                --if aristaClase[j].isVisible == false then
-                    aristaClase[j].isVisible = true
-                --end
-            end
-            
-        end
-    end]]
     for j =1, 72 do
         
         if arista.verticeI == aristaClase[j].verticeI then
@@ -1063,6 +1065,7 @@ local function hazLaLuz()
 
 
 end
+
 
 
 
@@ -1254,11 +1257,30 @@ function scene:create(event)
     tradeo.x = display.contentCenterX-400
     tradeo.y = display.contentHeight-100
 
+    background2 = display.newImageRect(grpPartida,"Imagenes/fondoH.png", 2800, 1200 )
+    background2.x = display.contentCenterX
+    background2.y = display.contentCenterY
+    background2:toFront()
+
+    pasar = display.newImageRect(grpPartida,"Imagenes/pasar.png", 512, 512 )
+    pasar.x = display.contentCenterX
+    pasar.y = display.contentCenterY
+    pasar:toFront()
+
+    seguir = display.newText("Pasa al siguiente jugador", display.contentCenterX , display.contentCenterY+400, native.systemFont, 70)
+    seguir:toFront()
+
+    background2.isVisible = false
+    pasar.isVisible = false
+    seguir.isVisible = false
+
     dibujarArista()
     COMOQUIERAS2()
     
 
-    boton:addEventListener("tap", pasarTurno) --Se le agrega el evento al objeto para pasar Turno
+
+    pasar:addEventListener("tap", pasarTurno)
+    boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
     dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
     dado2:addEventListener("tap", actualizaDado)
 
