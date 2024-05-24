@@ -169,6 +169,10 @@ local probabilidadA = 0
 local posicionLadronO = 0
 
 
+
+--Anticipadas
+
+
 --Creacion de clases
 
 Jugador = {
@@ -241,6 +245,12 @@ end
 
 local function pasalo()
     background2.isVisible = true
+    for i = 1, 54 do
+        verticesC[i].isVisible = false
+    end
+    for i = 1, 72 do
+        aristas[i].isVisible = false
+    end
     pasar.isVisible = true
     seguir.isVisible = true
 end
@@ -303,35 +313,7 @@ local function aumentar(carta, i)
 end
 
 
---[[local function moverLadron(event)
-    local imagenClicada = event.target
-    local posicion = 0
-    for i = 1, 19 do
-        if hexagonosM[i] == imagenClicada then
-                posicion = i
-            break
-        end
-    end
 
-    if probabilidadA == 0 then
-        probabilidadA = numeroHexagonos[posicion][2]
-        posicionLadronA = posicion
-        probHex.fill = { type="image", filename=imgNum[6]}
-        numeroHexagonos[posicion][2] = numeroHexagonos[posicion][2] + 40
-    else
-        probHex.fill = { type="image", filename=imgNum[probabilidadA]}
-        numeroHexagonos[posicionLadronA][2] = numeroHexagonos[posicionLadronA][2] - 40
-        probabilidadA = numeroHexagonos[posicion][2]
-        posicionLadronA = posicion
-        numeroHexagonos[posicion][2] = numeroHexagonos[posicion][2] + 40
-    end
-    for i = 1, 19 do
-        hexagonosM[i]:removeEventListener("tap",moverLadron)
-    end
-
-
-    --hexagonosM[hexagono].
-end]]
 
 
 local function verOcupacion(j, i)
@@ -340,37 +322,9 @@ local function verOcupacion(j, i)
     end
 end
 
-local function obtenerRecursos()
-    local probabilidad = dice1 + dice2
-    --print("probabilidad: ",probabilidad)
-    if probabilidad ~= 7 then
-        for i =1, 19 do
-            if numeroHexagonos[i][2] == probabilidad -1 then
-                --print("Hexagono: ", i)
-                for j = 1, 6 do
-                    verOcupacion(numeroHexagonos[i][3][j], i)
-                end
-                
-            end
-        end
-    else
-        --for i = 1, 19 do
-          --  hexagonosM[i]:addEventListener("tap",moverLadron)
-        --end
-    end
-    
-end
 
-local function actualizaDado() --Función para cambiar la imagen de los dados
-    dice1 = math.random(6)
-    dice2 = math.random(6)
-    if turno == true then
-        turno = false
-        dado1.fill = { type="image", filename="Imagenes/dado"..dice1..".png" }
-        dado2.fill = { type="image", filename="Imagenes/dado"..dice2..".png" }
-        obtenerRecursos()
-    end
-end
+
+
 
 
 
@@ -461,7 +415,20 @@ local function continuaCaminos(arista)
     end
 end
 
+local function activarCaminos()
+    for i = 1, 54 do
+        if verticeClase[i].jugador == jugadorActual then
+          for j = 1, 72 do
+            if aristaClase[j].verticeI == verticeClase[i] or aristaClase[j].verticeF == verticeClase[i] then
+                aristas[j].isVisible = true
+            end             
+          end  
+        end
+    end
+end
+
 local function reactivarCaminos()
+    activarCaminos()
     for i = 1, 72 do
         if aristaClase[i].jugador == jugadorActual then
             continuaCaminos(aristaClase[i])
@@ -496,7 +463,7 @@ local function actualizarTemporizador()
             jugadorActual = 1
             ronda = ronda + 1 
         end
-        reactivarCaminos()
+        --desactivarCaminos()
     else
         actualizarTextoTiempo()
         
@@ -511,9 +478,16 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     seguir.isVisible = false
 
     for i in ipairs(verticeClase) do
-        verticesC[i].isVisible = true
+        if ronda > 1 then
+            if verticeClase[i].ocupado == true then
+                verticesC[i].isVisible = true
+            end
+        else
+            verticesC[i].isVisible = true
+        end
+        
     end
-
+    
     turno = true
     if jugadorActual ==1 then 
         jugando.text = jugadores[2].nombre
@@ -550,14 +524,76 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
     actualizarTextoTiempo()
     desactivarCaminos()
-    reactivarCaminos()
+    --reactivarCaminos()
 end
 
 
+local function moverLadron(event)
+    local imagenClicada = event.target
+    local posi = 0
+    for i = 1, 19 do
+        if hexagonosM[i] == imagenClicada then
+                posi = i
+                print(posi)
+            break
+        end
+    end
+
+    if probabilidadA == 0 then
+        probabilidadA = numeroHexagonos[posi][2] --La probalidad antes de ladron
+        posicionLadronA = posi --Ubicacion del ladron
+        probHex[posi].fill = { type="image", filename=imgNum[6]}
+       -- probHex[posi].isVisible = false
+        numeroHexagonos[posi][2] = numeroHexagonos[posi][2] + 40 --Que no de recursos
+    else
+        probHex[posicionLadronA].fill = { type="image", filename=imgNum[probabilidadA]}
+        numeroHexagonos[posicionLadronA][2] = numeroHexagonos[posicionLadronA][2] - 40
+        probabilidadA = numeroHexagonos[posi][2]
+        posicionLadronA = posi
+        numeroHexagonos[posi][2] = numeroHexagonos[posi][2] + 40
+        probHex[posicionLadronA].fill = { type="image", filename=imgNum[6]}
+    end
+    for i = 1, 19 do
+        hexagonosM[i]:removeEventListener("tap",moverLadron)
+    end
+    boton:addEventListener("tap", pasalo)
+
+    --hexagonosM[hexagono].
+end
 
 
+local function obtenerRecursos()
+    local probabilidad = dice1 + dice2
+    --print("probabilidad: ",probabilidad)
+    if probabilidad ~= 7 then
+        for i =1, 19 do
+            if numeroHexagonos[i][2] == probabilidad -1 then
+                --print("Hexagono: ", i)
+                for j = 1, 6 do
+                    verOcupacion(numeroHexagonos[i][3][j], i)
+                end
+                
+            end
+        end
+    else
+        boton:removeEventListener("tap", pasalo)
+        for i = 1, 19 do
+            hexagonosM[i]:addEventListener("tap",moverLadron)
+        end
+    end
+    
+end
 
-
+local function actualizaDado() --Función para cambiar la imagen de los dados
+    dice1 = math.random(6)
+    dice2 = math.random(6)
+    if turno == true then
+        turno = false
+        dado1.fill = { type="image", filename="Imagenes/dado"..dice1..".png" }
+        dado2.fill = { type="image", filename="Imagenes/dado"..dice2..".png" }
+        obtenerRecursos()
+    end
+end
 
 
 local function dibujarNumeros()
@@ -583,14 +619,13 @@ local function dibujarNumeros()
             local numero1 = display.newImageRect(grpPartida,imgNum[asignarProbabilidad(i)], 70, 100)
             numero1.x = display.contentCenterX + x
             numero1.y = display.contentCenterY + y
+            table.insert(probHex,numero1)
         else
             local numero1 = display.newImageRect(grpPartida,imgNum[6], 60, 40)
             numero1.x = display.contentCenterX + x
             numero1.y = display.contentCenterY + y
-            posicionLadronO = i
+            table.insert(probHex,numero1)
         end
-        
-        table.insert(probHex,numero1)
         x = x + 130
     end
 end
@@ -630,9 +665,6 @@ local function dibujarHexagonos()
             x = -255
             y = 160
         end
-
-        
-        
         local hexagono1 = display.newImageRect(grpPartida,imgHex[colocarHexagonos()], 135, 185)
         hexagono1.x = display.contentCenterX + x
         hexagono1.y = display.contentCenterY + y
@@ -1022,26 +1054,69 @@ local function intercambio(a,b) --Arregla las posiciones de los vertices
 end
 
 local function verificarRecursos(i)
-    if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas2>=1 and jugadores[jugadorActual].cartas3>=1 and jugadores[jugadorActual].cartas4>=1 then
-        return true
+    if i == 1 then
+        if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas2>=1 and jugadores[jugadorActual].cartas3>=1 and jugadores[jugadorActual].cartas4>=1 then
+            return true
+        end
+    else 
+        if jugadores[jugadorActual].cartas2>=3 and jugadores[jugadorActual].cartas5>=2 then
+            return true
+        end   
     end
     return false
 end
 
+local function cambiarImagenC(event) --Coloca las casas 
+    local imagenClicada = event.target
+    local posicion
+    for i, imagen in ipairs(verticesC) do
+        if imagen == imagenClicada then
+            posicion = i
+            break
+        end 
+    end
 
-
-
-local function activarCaminos()
+        if (verificarRecursos(2)) and verticeClase[posicion].jugador == jugadorActual then
+            
+            verticeClase[posicion].ocupado = true
+            verticeClase[posicion].jugador = jugadorActual
+            verticeClase[posicion].tipoC = 1
+            
+            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -3
+            jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 -2
+            imagenClicada.fill = { type="image", filename="Imagenes/Construccion/ciudad"..jugadorActual..".png" }
+            imagenClicada:toFront()
+            --imagenClicada:scale(5,5)
+            imagenClicada.width = 75
+            imagenClicada.height = 90
+            actualizarRecursos()
+            
+        end
+end
+        
+function cambiarCiudad()
     for i = 1, 54 do
-        if verticeClase[i].jugador == jugadorActual then
-          for j = 1, 72 do
-            if aristaClase[j].verticeI == verticeClase[i] or aristaClase[j].verticeF == verticeClase[i] then
-                aristas[j].isVisible = true
-            end             
-          end  
+        if verticeClase[i].ocupado == true and verticeClase[i].jugador == jugadorActual then
+            verticesC[i]:addEventListener("tap", cambiarImagenC)
         end
     end
 end
+
+function quitar()
+    for i = 1, 54 do
+        if verticeClase[i].ocupado == true and verticeClase[i].jugador == jugadorActual then
+            verticesC[i]:removeEventListener("tap", cambiarImagenC)
+        end
+    end
+    ciudades:removeEventListener("tap", quitar)
+    ciudades:addEventListener("tap", cambiarCiudad)
+    
+end
+
+
+
+
+
 
 
 
@@ -1188,16 +1263,6 @@ local function hazLaLuz()
 
 
 end
-
-
-
-
-
-
-
-
-
-
 
 
 --Eventos de la escena
@@ -1406,9 +1471,10 @@ function scene:create(event)
     COMOQUIERAS2()
     
 
-
+    camino:addEventListener("tap",reactivarCaminos)
     pasar:addEventListener("tap", pasarTurno)
     casas:addEventListener("tap", colocarCasas)
+    ciudades:addEventListener("tap", cambiarCiudad)
     boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
     dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
     dado2:addEventListener("tap", actualizaDado)

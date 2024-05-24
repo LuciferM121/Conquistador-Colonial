@@ -13,7 +13,10 @@ local grpMenu
 -- Funciones
 local function jugar1()
     composer.gotoScene("scenes.jugadores");
-    
+end
+
+local function configuracion()
+    composer.gotoScene("scenes.configuracion");
 end
 
 --Eventos de la escena
@@ -47,17 +50,15 @@ function scene:create(event)
     salir.y = cy + 400
     
     jugar:addEventListener("tap", jugar1)
+    opciones:addEventListener("tap", configuracion)
 
 end
-
-
 
 function scene:show(event)
     if(event.phase == "will") then
     elseif (event.phase == "did") then
     end
 end
-
 
 function scene:hide(event)
     if(event.phase == "will") then
