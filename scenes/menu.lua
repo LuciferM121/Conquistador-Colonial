@@ -12,7 +12,7 @@ local grpMenu
 
 -- Funciones
 local function jugar1()
-    composer.gotoScene("scenes.partida");
+    composer.gotoScene("scenes.jugadores");
     
 end
 
@@ -34,15 +34,15 @@ function scene:create(event)
     logo.x = cx
     logo.y = 250
 
-    local jugar = display.newImageRect(grpMenu,"Imagenes/Menu/jugar.png", 600,360)
+    local jugar = display.newImageRect(grpMenu,"Imagenes/Menu/jugar.png", 450,150)
     jugar.x = cx - 400
     jugar.y = cy + 200
    
-    local opciones = display.newImageRect(grpMenu,"Imagenes/Menu/opciones.png", 600,360)
+    local opciones = display.newImageRect(grpMenu,"Imagenes/Menu/opciones.png", 450,170)
     opciones.x = cx + 400 
     opciones.y = cy + 200
 
-    local salir = display.newImageRect(grpMenu,"Imagenes/Menu/salir.png", 600,360)
+    local salir = display.newImageRect(grpMenu,"Imagenes/Menu/salir.png", 450,150)
     salir.x = cx 
     salir.y = cy + 400
     

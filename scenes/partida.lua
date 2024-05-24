@@ -157,13 +157,16 @@ local jugadorActual = 1;
 local jugando = display.newText("", display.contentCenterX - 400 , display.contentHeight-200, native.systemFont, 70)
 --Cronometro
 local textoTiempo = display.newText("", display.contentWidth-330, display.contentHeight-500, native.systemFont, 70)
-local tiempoTotal = 20
+local tiempoTotal = 40
 local tiempoRestante = tiempoTotal
 local temporizador
 local seguir
 local background2
 local pasar
 
+local posicionLadronA = nil
+local probabilidadA = 0
+local posicionLadronO = 0
 
 
 --Creacion de clases
@@ -242,6 +245,13 @@ local function pasalo()
     seguir.isVisible = true
 end
 
+local function desactivarCaminos()
+    for i =1, 72 do
+        if aristaClase[i].ocupado == false then
+            aristas[i].isVisible = false
+        end
+    end        
+end
 
 local function colocarHexagonos() --Funcion para randomizar el tipo de hexagono
     local valor
@@ -292,11 +302,44 @@ local function aumentar(carta, i)
         end
 end
 
+
+--[[local function moverLadron(event)
+    local imagenClicada = event.target
+    local posicion = 0
+    for i = 1, 19 do
+        if hexagonosM[i] == imagenClicada then
+                posicion = i
+            break
+        end
+    end
+
+    if probabilidadA == 0 then
+        probabilidadA = numeroHexagonos[posicion][2]
+        posicionLadronA = posicion
+        probHex.fill = { type="image", filename=imgNum[6]}
+        numeroHexagonos[posicion][2] = numeroHexagonos[posicion][2] + 40
+    else
+        probHex.fill = { type="image", filename=imgNum[probabilidadA]}
+        numeroHexagonos[posicionLadronA][2] = numeroHexagonos[posicionLadronA][2] - 40
+        probabilidadA = numeroHexagonos[posicion][2]
+        posicionLadronA = posicion
+        numeroHexagonos[posicion][2] = numeroHexagonos[posicion][2] + 40
+    end
+    for i = 1, 19 do
+        hexagonosM[i]:removeEventListener("tap",moverLadron)
+    end
+
+
+    --hexagonosM[hexagono].
+end]]
+
+
 local function verOcupacion(j, i)
     if verticeClase[j].ocupado == true then
         aumentar(numeroHexagonos[i][1], verticeClase[j].jugador)
     end
 end
+
 local function obtenerRecursos()
     local probabilidad = dice1 + dice2
     --print("probabilidad: ",probabilidad)
@@ -310,6 +353,10 @@ local function obtenerRecursos()
                 
             end
         end
+    else
+        --for i = 1, 19 do
+          --  hexagonosM[i]:addEventListener("tap",moverLadron)
+        --end
     end
     
 end
@@ -390,13 +437,49 @@ local function actualizarRecursos() --La funcion mas larga, es para actualizar l
     end
 end
 
+local function continuaCaminos(arista)
+    for j =1, 72 do
+        
+        if arista.verticeI == aristaClase[j].verticeI then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        elseif arista.verticeF == aristaClase[j].verticeI then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        elseif arista.verticeI == aristaClase[j].verticeF then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        elseif arista.verticeF == aristaClase[j].verticeF then
+            if aristas[j].isVisible == false then
+                aristas[j].isVisible = true
+            end
+        end
+        
+    end
+end
+
+local function reactivarCaminos()
+    for i = 1, 72 do
+        if aristaClase[i].jugador == jugadorActual then
+            continuaCaminos(aristaClase[i])
+        end
+    end
+end
 
 local function actualizarTemporizador()
     tiempoRestante = tiempoRestante - 1
+    
     if tiempoRestante <= 0 then
         timer.cancel(temporizador)
-        tiempoRestante = 20
+        tiempoRestante = 40
         temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
+        desactivarCaminos()
+        for i in ipairs(verticeClase) do
+            verticesC[i].isVisible = true
+        end
         actualizarTextoTiempo()
         turno = true
         if jugadorActual ==1 then 
@@ -413,8 +496,10 @@ local function actualizarTemporizador()
             jugadorActual = 1
             ronda = ronda + 1 
         end
+        reactivarCaminos()
     else
         actualizarTextoTiempo()
+        
     end
 end
 
@@ -424,6 +509,11 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     background2.isVisible = false
     pasar.isVisible = false
     seguir.isVisible = false
+
+    for i in ipairs(verticeClase) do
+        verticesC[i].isVisible = true
+    end
+
     turno = true
     if jugadorActual ==1 then 
         jugando.text = jugadores[2].nombre
@@ -456,9 +546,11 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
 
     end
     timer.cancel(temporizador)
-    tiempoRestante = 20
+    tiempoRestante = 40
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
     actualizarTextoTiempo()
+    desactivarCaminos()
+    reactivarCaminos()
 end
 
 
@@ -495,6 +587,7 @@ local function dibujarNumeros()
             local numero1 = display.newImageRect(grpPartida,imgNum[6], 60, 40)
             numero1.x = display.contentCenterX + x
             numero1.y = display.contentCenterY + y
+            posicionLadronO = i
         end
         
         table.insert(probHex,numero1)
@@ -853,20 +946,6 @@ end
 
 
 
-local function intercambio(a,b) --Arregla las posiciones de los vertices
-    local aux = verticesC[b]  
-    verticesC[b] = verticesC[a]
-    verticesC[a] = aux
-end
-
-local function verificarRecursos(i)
-    if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas2>=1 and jugadores[jugadorActual].cartas3>=1 and jugadores[jugadorActual].cartas4>=1 then
-        return true
-    end
-    return false
-end
-
-
 local function noSonAdyacentes(vertice1, vertice2)
     -- Verificar si vertice2 no está en la lista de adyacencia de vertice1
     for i, vecino in ipairs(grafo[vertice1]) do
@@ -885,6 +964,73 @@ local function noSonAdyacentes(vertice1, vertice2)
     return true
 end
 
+local function colocarCasas()
+    
+    --(aristaClase[j].verticeI == i or aristaClase[j].verticeF == i)
+--[[
+    for i in ipairs(verticesC) do
+        if verticeClase[i].ocupado == false then
+            for j in ipairs(aristaClase) do
+                    if aristaClase[j].verticeI == i or aristaClase[j].verticeF == i then
+                        
+                    end
+            end
+        end    
+    end
+]]
+
+for i in ipairs(verticesC) do
+    if verticeClase[i].ocupado == false then
+       verticesC[i].isVisible = false
+    end    
+end
+   
+    
+    for posicion = 1, 54 do
+        if verticeClase[posicion].ocupado == true and verticeClase[posicion].jugador == jugadorActual then
+            local banderaNoAdyacentes = true
+            for i in ipairs(verticesC) do
+                if verticeClase[i].ocupado == false then
+                    if i ~= posicion then
+                        banderaNoAdyacentes = noSonAdyacentes(posicion,i)
+                        for j in ipairs(aristaClase) do
+                            if (aristaClase[j].verticeI == verticeClase[i] or aristaClase[j].verticeF == verticeClase[i]) and aristaClase[j].ocupado == true and aristaClase[j].jugador == jugadorActual then
+                                if banderaNoAdyacentes then
+                                    verticesC[i].isVisible = true
+                                end
+                            end
+                        end   
+                    end
+                    
+
+                end
+            end
+        end
+    end   
+
+
+end
+
+
+
+
+
+local function intercambio(a,b) --Arregla las posiciones de los vertices
+    local aux = verticesC[b]  
+    verticesC[b] = verticesC[a]
+    verticesC[a] = aux
+end
+
+local function verificarRecursos(i)
+    if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas2>=1 and jugadores[jugadorActual].cartas3>=1 and jugadores[jugadorActual].cartas4>=1 then
+        return true
+    end
+    return false
+end
+
+
+
+
 local function activarCaminos()
     for i = 1, 54 do
         if verticeClase[i].jugador == jugadorActual then
@@ -895,32 +1041,8 @@ local function activarCaminos()
           end  
         end
     end
-    
 end
 
-local function continuaCaminos(arista)
-    for j =1, 72 do
-        
-        if arista.verticeI == aristaClase[j].verticeI then
-            if aristas[j].isVisible == false then
-                aristas[j].isVisible = true
-            end
-        elseif arista.verticeF == aristaClase[j].verticeI then
-            if aristas[j].isVisible == false then
-                aristas[j].isVisible = true
-            end
-        elseif arista.verticeI == aristaClase[j].verticeF then
-            if aristas[j].isVisible == false then
-                aristas[j].isVisible = true
-            end
-        elseif arista.verticeF == aristaClase[j].verticeF then
-            if aristas[j].isVisible == false then
-                aristas[j].isVisible = true
-            end
-        end
-        
-    end
-end
 
 
 
@@ -1018,6 +1140,7 @@ local function cambiarImagen2(event) --Coloca las casas
     --end
     --banderaNoAdyacentes = true
     --print(posicion)
+    --
     
 end
 
@@ -1079,7 +1202,12 @@ end
 
 --Eventos de la escena
 function scene:create(event)
-
+    --Recibir parámetros
+    local params = event.params
+    local njugador1 = params.jugador1
+    local njugador2 = params.jugador2
+    local njugador3 = params.jugador3
+    local njugador4 = params.jugador4
     --Agregar grupo de imagenes
     grpPartida = display.newGroup()
     self.view:insert(grpPartida)
@@ -1158,28 +1286,28 @@ function scene:create(event)
     usuario4.y = display.contentHeight-1000
 
     
-    jugadores[1] = Jugador:nuevo("Evan") --Verde
+    jugadores[1] = Jugador:nuevo(njugador1) --Verde
     jugadores[1].numero = 1
     usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
     --table.insert(jugadores,jugador1)
 
 
-    jugadores[2] = Jugador:nuevo("Omar")
+    jugadores[2] = Jugador:nuevo(njugador2)
     jugadores[2].numero = 2
     usuario2_text = display.newText(grpPartida,jugadores[2].nombre, display.contentWidth - 350 , display.contentHeight-880, native.systemFont, 50 )
     usuario2_text:setFillColor(0,0,0);
     --table.insert(jugadores,jugador2)
     
 
-    jugadores[3] = Jugador:nuevo("Sebas")
+    jugadores[3] = Jugador:nuevo(njugador3)
     jugadores[3].numero = 3
     usuario3_text = display.newText(grpPartida,jugadores[3].nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
    -- table.insert(jugadores,jugador3)
     
 
-    jugadores[4] = Jugador:nuevo("Bolillo")
+    jugadores[4] = Jugador:nuevo(njugador4)
     jugadores[4].numero = 4
     usuario4_text = display.newText(grpPartida,jugadores[4].nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
@@ -1280,6 +1408,7 @@ function scene:create(event)
 
 
     pasar:addEventListener("tap", pasarTurno)
+    casas:addEventListener("tap", colocarCasas)
     boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
     dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
     dado2:addEventListener("tap", actualizaDado)
