@@ -29,17 +29,17 @@ function scene:create(event)
     -- Título
     local title = display.newText({
         parent = sceneGroup,
-        text = "Configuracion",
+        text = "CONFIGURACIÓN",
         x = display.contentCenterX,
         y = 150,
         font = native.systemFontBold,
         fontSize = 72
     })
-    title:setFillColor(1, 1, 1)
+    title:setFillColor(0, 0, 0)
 
     local sonido = display.newImageRect(sceneGroup,"Imagenes/configuracion/sonido.png", 100,100)
     sonido.x = display.contentCenterX - 400
-    sonido.y = 200
+    sonido.y = 350
    
     -- Checkbox de Sonido
     local soundCheckbox = widget.newSwitch({
@@ -58,17 +58,17 @@ function scene:create(event)
 
     local soundLabel = display.newText({
         parent = sceneGroup,
-        text = "SONIDITO",
+        text = "SONIDO",
         x = display.contentCenterX + 100,  -- Ajustar posición horizontal
         y = soundCheckbox.y,
         font = native.systemFontBold,
         fontSize = 48  -- Aumentar tamaño de fuente
     })
-    soundLabel:setFillColor(1, 1, 0)
+    soundLabel:setFillColor(0, 0, 0)
 
     local musica = display.newImageRect(sceneGroup,"Imagenes/configuracion/musica.png", 100,100)
     musica.x = display.contentCenterX - 400
-    musica.y = 500
+    musica.y = 550
 
     -- Checkbox de Música
     local musicCheckbox = widget.newSwitch({
@@ -87,13 +87,14 @@ function scene:create(event)
 
     local musicLabel = display.newText({
         parent = sceneGroup,
-        text = "MUSIQUITA",
+        text = "MÚSICA",
         x = display.contentCenterX + 100,  -- Ajustar posición horizontal
         y = musicCheckbox.y,
         font = native.systemFontBold,
         fontSize = 48  -- Aumentar tamaño de fuente
     })
-    musicLabel:setFillColor(1, 1, 0)
+
+    musicLabel:setFillColor(0, 0, 0)
 
     local salir = display.newImageRect(sceneGroup,"Imagenes/Menu/salir.png", 450,150)
     salir.x = cx 

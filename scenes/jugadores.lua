@@ -22,7 +22,7 @@ local function jugar3()
 end
 
 local function jugar4()
-    composer.gotoScene("scenes.partida");
+    composer.gotoScene("scenes.nombres");
     
 end
 

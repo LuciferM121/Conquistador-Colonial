@@ -36,6 +36,10 @@ local function enviarDatos()
     composer.gotoScene("scenes.partida", opciones)
 end
 
+local function salirAlMenu()
+    composer.gotoScene("scenes.menu");
+    
+end
 
 --Eventos de la escena
 function scene:create(event)
@@ -66,19 +70,36 @@ function scene:create(event)
     textField1.placeholder = "Nombre Jugador 1"
     grpJug:insert(textField1)
 
+    local jug1 = display.newText("Jugador 1", cx - 400, cy - 100, native.systemFont, 60)
+    jug1.fill = { 0, 0, 0 }
+    grpJug:insert(jug1)
+
     textField2 = native.newTextField(cx + 400, cy , 300, 50)
     textField2.placeholder = "Nombre Jugador 2"
     grpJug:insert(textField2)
 
-    textField3 = native.newTextField(cx -400, cy + 200, 300, 50)
+    local jug2 = display.newText("Jugador 2", cx + 400, cy - 100, native.systemFont, 60)
+    jug2.fill = { 0, 0, 0 }
+    grpJug:insert(jug2)
+
+    textField3 = native.newTextField(cx - 400, cy + 200, 300, 50)
     textField3.placeholder = "Nombre Jugador 3"
     grpJug:insert(textField3)
+
+    local jug3 = display.newText("Jugador 3", cx - 400, cy + 100, native.systemFont, 60)
+    jug3.fill = { 0, 0, 0 }
+    grpJug:insert(jug3)
 
     textField4 = native.newTextField(cx + 400, cy + 200, 300, 50)
     textField4.placeholder = "Nombre Jugador 4"
     grpJug:insert(textField4)
 
+    local jug4 = display.newText("Jugador 4", cx + 400, cy + 100, native.systemFont, 60)
+    jug4.fill = { 0, 0, 0 }
+    grpJug:insert(jug4)
+
     jugar:addEventListener("tap", enviarDatos)
+    salir:addEventListener("tap", salirAlMenu)
 end
 
 function scene:show(event)
