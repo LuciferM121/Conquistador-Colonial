@@ -174,7 +174,9 @@ local probabilidadA = 0
 
 local cantidadesCartas = {}
 
-
+local textoRonda = display.newText("", cx + 500, cy + 500, native.systemFont, 70)
+local textoPuntos = {}
+local textoCartasT = {}
 
 --Bolillo y Sebastian
 local cartasDadas = 0
@@ -288,6 +290,18 @@ local function actualizarTextoRecursos()
     
 end
 
+local function actualizarTextoCartasT()
+    for i = 1, 4 do
+        textoCartasT[i].text = string.format(jugadores[i].cartas1 + jugadores[i].cartas2 + jugadores[i].cartas3 + jugadores[i].cartas4 + jugadores[i].cartas5)
+    end
+end
+
+local function actualizarTextoPuntos()
+    for i = 1, 4 do
+        textoPuntos[i].text = string.format(jugadores[i].puntos)
+    end
+end
+
 local function desactivarCaminos()
     for i =1, 72 do
         if aristaClase[i].ocupado == false then
@@ -385,6 +399,7 @@ local function actualizarRecursos() --La funcion mas larga, es para actualizar l
         end
     end
     actualizarTextoRecursos()
+    actualizarTextoCartasT()
 end
 
 local function aumentar(carta, i)
@@ -1031,19 +1046,6 @@ local function noSonAdyacentes(vertice1, vertice2)
 end
 
 local function colocarCasas()
-    
-    --(aristaClase[j].verticeI == i or aristaClase[j].verticeF == i)
---[[
-    for i in ipairs(verticesC) do
-        if verticeClase[i].ocupado == false then
-            for j in ipairs(aristaClase) do
-                    if aristaClase[j].verticeI == i or aristaClase[j].verticeF == i then
-                        
-                    end
-            end
-        end    
-    end
-]]
 
     for i in ipairs(verticesC) do
         if verticeClase[i].ocupado == false then
@@ -1123,6 +1125,7 @@ local function cambiarImagenC(event) --Coloca las casas
             jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
             jugadores[jugadorActual].casasD = jugadores[jugadorActual].casasD + 1
             jugadores[jugadorActual].ciudadesD = jugadores[jugadorActual].ciudadesD - 1
+            actualizarTextoPuntos()
         end
     end
 
@@ -1190,6 +1193,7 @@ local function cambiarImagen(event) --Coloca las casas
                 actualizarRecursos()
                 jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
                 jugadores[jugadorActual].casasD = jugadores[jugadorActual].casasD -1
+                actualizarTextoPuntos()
                 activarCaminos()
             end
             banderaNoAdyacentes = true
@@ -1704,31 +1708,41 @@ function scene:create(event)
     local usuario = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
     usuario.x = display.contentWidth - 350 
     usuario.y = display.contentHeight - 750
-
+    
     local usuario2 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 142.5, 195)
     usuario2.x = display.contentWidth - 150
     usuario2.y = display.contentHeight - 750
 
-    local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 142.5, 195)
+    local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario4.png", 142.5, 195)
     usuario3.x = display.contentWidth-350 
     usuario3.y = display.contentHeight-1000
 
-    local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario4.png", 142.5, 195)
+    local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 142.5, 195)
     usuario4.x = display.contentWidth-150
     usuario4.y = display.contentHeight-1000
 
     
-    jugadores[1] = Jugador:nuevo(njugador1) --Verde
+    jugadores[1] = Jugador:nuevo(njugador2) --Verde
+    jugando.text = njugador1
     jugadores[1].numero = 1
-    usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-880, native.systemFont, 50 )
+    usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-920, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
+    textoPuntos[2] = display.newText(grpPartida,"0", display.contentWidth - 150, display.contentHeight-1080, native.systemFont, 30 )
+    textoCartasT[2] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-1000, native.systemFont, 30 )
+    textoCartasT[2]:setFillColor(0,0,0);
+    textoPuntos[2]:setFillColor(0,0,0);
+
     --table.insert(jugadores,jugador1)
 
 
-    jugadores[2] = Jugador:nuevo(njugador2)
+    jugadores[2] = Jugador:nuevo(njugador1)
     jugadores[2].numero = 2
-    usuario2_text = display.newText(grpPartida,jugadores[2].nombre, display.contentWidth - 350 , display.contentHeight-880, native.systemFont, 50 )
+    usuario2_text = display.newText(grpPartida,jugadores[2].nombre, display.contentWidth - 350 , display.contentHeight-920, native.systemFont, 50 )
     usuario2_text:setFillColor(0,0,0);
+    textoPuntos[1] = display.newText(grpPartida,"0", display.contentWidth -350 , display.contentHeight-1080, native.systemFont, 30 )
+    textoCartasT[1] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-1000, native.systemFont, 30 )
+    textoCartasT[1]:setFillColor(0,0,0);
+    textoPuntos[1]:setFillColor(0,0,0);
     --table.insert(jugadores,jugador2)
     
 
@@ -1736,14 +1750,19 @@ function scene:create(event)
     jugadores[3].numero = 3
     usuario3_text = display.newText(grpPartida,jugadores[3].nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
-   -- table.insert(jugadores,jugador3)
-    
+    textoPuntos[4] = display.newText(grpPartida,"0", display.contentWidth - 350, display.contentHeight-830, native.systemFont, 30 )
+    textoCartasT[4] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-750, native.systemFont, 30 )
+    textoCartasT[4]:setFillColor(0,0,0);
+    textoPuntos[4]:setFillColor(0,0,0);
 
     jugadores[4] = Jugador:nuevo(njugador4)
     jugadores[4].numero = 4
     usuario4_text = display.newText(grpPartida,jugadores[4].nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
-    --table.insert(jugadores,jugador4)
+    textoPuntos[3] = display.newText(grpPartida,"0", display.contentWidth - 150, display.contentHeight-830, native.systemFont, 30 )
+    textoCartasT[3] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-750, native.systemFont, 30 )
+    textoCartasT[3]:setFillColor(0,0,0);
+    textoPuntos[3]:setFillColor(0,0,0);
     
     colocarCartas()
     grpPartida:insert(grpJugadores[jugadores[1].numero])
