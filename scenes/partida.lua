@@ -1381,8 +1381,8 @@ function seleccionParaDar(contador1, carta)
             jugadores[jugadorActual].carta6 = jugadores[jugadorActual].carta6+1
         end
         print("tuputamadrejimbo2")
-        terminar()
         actualizarRecursos()
+        terminar()
         do return end
     end
     
