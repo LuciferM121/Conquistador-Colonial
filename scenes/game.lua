@@ -1,5 +1,6 @@
 ---@diagnostic disable: undefined-global
 
+
 local turno = true
 local usuario1_text
 local usuario2_text

@@ -51,7 +51,6 @@ function scene:create(event)
     
     jugar:addEventListener("tap", jugar1)
     opciones:addEventListener("tap", configuracion)
-
 end
 
 function scene:show(event)
