@@ -157,7 +157,7 @@ local probabilidad = {1,2,2,2,2,0,2,2,2,2,1}
 --Jugadores
 local jugadores={}
 local jugadorActual = 1;
-local jugando = display.newText("", display.contentCenterX - 400 , display.contentHeight-200, native.systemFont, 70)
+--local jugando = display.newText("", display.contentCenterX - 400 , display.contentHeight-200, native.systemFont, 70)
 
 --Cronometro
 local textoTiempo = display.newText("", display.contentWidth-330, display.contentHeight-500, native.systemFont, 70)
@@ -174,9 +174,11 @@ local probabilidadA = 0
 
 local cantidadesCartas = {}
 
-local textoRonda = display.newText("", cx + 500, cy + 500, native.systemFont, 70)
+local textoRonda = display.newText("", 150, display.contentHeight - 100, native.systemFont, 50)
 local textoPuntos = {}
 local textoCartasT = {}
+local cuadrosJugando = {}
+
 
 --Bolillo y Sebastian
 local cartasDadas = 0
@@ -277,7 +279,52 @@ local function pasalo()
 
     pasar.isVisible = true
     seguir.isVisible = true
-    jugando.isVisible = false
+    textoRonda.isVisible = false
+    --jugando.isVisible = false
+end
+
+local function salirAlMenu()
+    
+    --local currentScene = composer.getSceneName("current")
+    --if currentScene then
+    --    composer.removeScene(currentScene, true)
+    --end
+    --composer.gotoScene("scenes.menu")
+    native.requestExit()
+    
+end
+
+local function ganador(jugador)
+    background2.isVisible = true
+    for i = 1, 54 do
+        verticesC[i].isVisible = false
+    end
+    for i = 1, 72 do
+        aristas[i].isVisible = false
+    end
+    for i = 1, 6 do
+        cantidadesCartas[i].isVisible = false
+    end
+    local trofeo = display.newImageRect(grpPartida,"Imagenes/Construccion/trofeo.png", 500, 500)
+    trofeo.x = cx
+    trofeo.y = cy
+    local textoGanaste = display.newText("¡Felicidades, "..jugador.." has ganado!", cx, cy -300, native.systemFont, 70)
+    local salir = display.newImageRect(grpPartida,"Imagenes/Menu/salir.png", 450,150)
+    salir.x = cx
+    salir.y = cy + 400
+    salir:addEventListener("tap", salirAlMenu)
+    --pasar.isVisible = true
+    --seguir.isVisible = true
+    --jugando.isVisible = false
+end
+
+local function verificarGanador()
+    for i =1, 4 do
+        if jugadores[i].puntos == 10 then
+            ganador(jugadores[i].nombre)
+        end
+    end
+
 end
 
 local function actualizarTextoRecursos()
@@ -520,8 +567,8 @@ function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     background2.isVisible = false
     pasar.isVisible = false
     seguir.isVisible = false
-
-    jugando.isVisible = true
+    textoRonda.isVisible = true
+    --jugando.isVisible = true
 
     for i in ipairs(verticeClase) do
         if ronda > 1 then
@@ -544,8 +591,10 @@ function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     end
     turno = true
     if jugadorActual ==1 then 
-        jugando.text = jugadores[2].nombre
+        --jugando.text = jugadores[2].nombre
+        cuadrosJugando[jugadorActual].isVisible = false
         jugadorActual = 2
+        cuadrosJugando[jugadorActual].isVisible = true
         actualizarRecursos()
         grpJugadores[1].isVisible = false
         grpJugadores[2].isVisible = true
@@ -553,22 +602,29 @@ function pasarTurno() --Función para pasar el Turno al siguiente jugador.
 
     elseif jugadorActual ==2 then
         actualizarRecursos()
-        jugando.text = jugadores[3].nombre
+        --jugando.text = jugadores[3].nombre
+        cuadrosJugando[jugadorActual].isVisible = false
         jugadorActual = 3
+        cuadrosJugando[jugadorActual].isVisible = true
         grpJugadores[2].isVisible = false
         grpJugadores[3].isVisible = true
 
     elseif jugadorActual ==3 then
         actualizarRecursos()
-        jugando.text = jugadores[4].nombre
+        --jugando.text = jugadores[4].nombre
+        cuadrosJugando[jugadorActual].isVisible = false
         jugadorActual = 4
+        cuadrosJugando[jugadorActual].isVisible = true
         grpJugadores[3].isVisible = false
         grpJugadores[4].isVisible = true
     else
         actualizarRecursos()
-        jugando.text = jugadores[1].nombre
+        --jugando.text = jugadores[1].nombre
+        cuadrosJugando[jugadorActual].isVisible = false
         jugadorActual = 1
+        cuadrosJugando[jugadorActual].isVisible = true
         ronda = ronda + 1
+        textoRonda.text = "Ronda: "..ronda
         grpJugadores[4].isVisible = false
         grpJugadores[1].isVisible = true
 
@@ -682,7 +738,7 @@ end
 
 local function  colocarTextoCartas()
     local x = 180
-    local y = 200
+    local y = 100
     for j =1, 6 do
         local cartas = display.newText("0", x - 90 , y, native.systemFont, 70)
         y = y + 150
@@ -692,10 +748,10 @@ end
 
 local function colocarCartas()
     local x = 180
-    local y = 200
+    local y = 80
     for i =1, 4 do
         x = 180
-        y = 200
+        y = 100
         for j =1, 6 do
             local carta = display.newImageRect(grpJugadores[i],"Imagenes/CartasM/vacia.png", 100, 140)
             carta.x =  x
@@ -1126,6 +1182,7 @@ local function cambiarImagenC(event) --Coloca las casas
             jugadores[jugadorActual].casasD = jugadores[jugadorActual].casasD + 1
             jugadores[jugadorActual].ciudadesD = jugadores[jugadorActual].ciudadesD - 1
             actualizarTextoPuntos()
+            verificarGanador()
         end
     end
 
@@ -1194,6 +1251,7 @@ local function cambiarImagen(event) --Coloca las casas
                 jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
                 jugadores[jugadorActual].casasD = jugadores[jugadorActual].casasD -1
                 actualizarTextoPuntos()
+                verificarGanador()
                 activarCaminos()
             end
             banderaNoAdyacentes = true
@@ -1435,32 +1493,32 @@ function seleccionParaDar(contador1, carta)
     local i = jugadorActual
     if jugadores[i].cartas1 >= 3 then
         arbolUser.fill = { type="image", filename="Imagenes/CartasM/cartas11.png" }
-        arbolUser.y = cy - 360
+        arbolUser.y = cy - 460
         arbolUser.x = cx - 600
         arbolUser.isVisible = true
     end
     if jugadores[i].cartas2 >=3 then
         trigoUser.fill = { type="image", filename="Imagenes/CartasM/cartas21.png" }
-        trigoUser.y = cy - 210
+        trigoUser.y = cy - 310
         trigoUser.x = cx - 600
         trigoUser.isVisible = true
     end
     if jugadores[i].cartas3 >= 3 then
         ladrilloUser.fill = { type="image", filename="Imagenes/CartasM/cartas31.png" }
-        ladrilloUser.y = cy - 60
+        ladrilloUser.y = cy - 160
         ladrilloUser.x = cx - 600
         ladrilloUser.isVisible = true
     end
     if jugadores[i].cartas4 >= 3 then
         vacaUser.fill = { type="image", filename="Imagenes/CartasM/cartas41.png" }
-        vacaUser.y = cy + 90
+        vacaUser.y = cy - 10
         vacaUser.x = cx - 600
         vacaUser.isVisible = true
     end
 
     if jugadores[i].cartas5 >= 3 then
         rocaUser.fill = { type="image", filename="Imagenes/CartasM/cartas51.png" }
-        rocaUser.y = cy + 240
+        rocaUser.y = cy + 140
         rocaUser.x = cx - 600
         rocaUser.isVisible = true
     end
@@ -1674,7 +1732,7 @@ function scene:create(event)
 
     -- Inicializar el objeto de texto con el tiempo restante inicial
     actualizarTextoTiempo()
-
+    textoRonda.text = "Ronda: 1"
     --Barcos
     local barco = display.newImageRect(grpPartida,"Imagenes/barco1.png", 200, 120)
     barco.x = display.contentCenterX -70
@@ -1705,25 +1763,50 @@ function scene:create(event)
     barco7.y = display.contentCenterY + 300
     
     --Jugadores
-    local usuario = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
-    usuario.x = display.contentWidth - 350 
-    usuario.y = display.contentHeight - 750
+    local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 142.5, 195)
+    usuario3.x = display.contentWidth - 350 
+    usuario3.y = display.contentHeight - 750
     
-    local usuario2 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 142.5, 195)
-    usuario2.x = display.contentWidth - 150
-    usuario2.y = display.contentHeight - 750
+    local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 142.5, 195)
+    usuario4.x = display.contentWidth - 150
+    usuario4.y = display.contentHeight - 750
 
-    local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario4.png", 142.5, 195)
-    usuario3.x = display.contentWidth-350 
-    usuario3.y = display.contentHeight-1000
+    local usuario1 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario4.png", 142.5, 195)
+    usuario1.x = display.contentWidth-350 
+    usuario1.y = display.contentHeight-1000
 
-    local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 142.5, 195)
-    usuario4.x = display.contentWidth-150
-    usuario4.y = display.contentHeight-1000
+    local usuario2 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 142.5, 195)
+    usuario2.x = display.contentWidth-150
+    usuario2.y = display.contentHeight-1000
 
-    
+    --Marcos
+    local cuadro1 = display.newImageRect(grpPartida,"Imagenes/configuracion/cuadrado.png", 230, 240)
+    cuadro1.x = display.contentWidth-350 
+    cuadro1.y = display.contentHeight-1000
+    cuadrosJugando[1] = cuadro1
+
+    local cuadro2 = display.newImageRect(grpPartida,"Imagenes/configuracion/cuadrado.png", 230, 240)
+    cuadro2.x = display.contentWidth-150
+    cuadro2.y = display.contentHeight-1000
+    cuadro2.isVisible = false
+    cuadrosJugando[2] = cuadro2
+
+    local cuadro3 = display.newImageRect(grpPartida,"Imagenes/configuracion/cuadrado.png", 230, 240)
+    cuadro3.x = display.contentWidth - 350 
+    cuadro3.y = display.contentHeight - 750
+    cuadro3.isVisible = false
+    cuadrosJugando[3] = cuadro3
+
+    local cuadro4 = display.newImageRect(grpPartida,"Imagenes/configuracion/cuadrado.png", 230, 240)
+    cuadro4.x = display.contentWidth - 150
+    cuadro4.y = display.contentHeight - 750
+    cuadro4.isVisible = false
+    cuadrosJugando[4] = cuadro4
+
+
+    --Alta de jugadores
     jugadores[1] = Jugador:nuevo(njugador2) --Verde
-    jugando.text = njugador1
+    --jugando.text = njugador1
     jugadores[1].numero = 1
     usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-920, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
@@ -1748,21 +1831,21 @@ function scene:create(event)
 
     jugadores[3] = Jugador:nuevo(njugador3)
     jugadores[3].numero = 3
-    usuario3_text = display.newText(grpPartida,jugadores[3].nombre, display.contentWidth - 350, display.contentHeight-640, native.systemFont, 50 )
+    usuario3_text = display.newText(grpPartida,jugadores[3].nombre, display.contentWidth - 350, display.contentHeight-675, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
-    textoPuntos[4] = display.newText(grpPartida,"0", display.contentWidth - 350, display.contentHeight-830, native.systemFont, 30 )
-    textoCartasT[4] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-750, native.systemFont, 30 )
-    textoCartasT[4]:setFillColor(0,0,0);
-    textoPuntos[4]:setFillColor(0,0,0);
+    textoPuntos[3] = display.newText(grpPartida,"0", display.contentWidth - 350, display.contentHeight-830, native.systemFont, 30 )
+    textoCartasT[3] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-750, native.systemFont, 30 )
+    textoCartasT[3]:setFillColor(0,0,0);
+    textoPuntos[3]:setFillColor(0,0,0);
 
     jugadores[4] = Jugador:nuevo(njugador4)
     jugadores[4].numero = 4
-    usuario4_text = display.newText(grpPartida,jugadores[4].nombre, display.contentWidth -150, display.contentHeight-640, native.systemFont, 50 )
+    usuario4_text = display.newText(grpPartida,jugadores[4].nombre, display.contentWidth -150, display.contentHeight-675, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
-    textoPuntos[3] = display.newText(grpPartida,"0", display.contentWidth - 150, display.contentHeight-830, native.systemFont, 30 )
-    textoCartasT[3] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-750, native.systemFont, 30 )
-    textoCartasT[3]:setFillColor(0,0,0);
-    textoPuntos[3]:setFillColor(0,0,0);
+    textoPuntos[4] = display.newText(grpPartida,"0", display.contentWidth - 150, display.contentHeight-830, native.systemFont, 30 )
+    textoCartasT[4] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-750, native.systemFont, 30 )
+    textoCartasT[4]:setFillColor(0,0,0);
+    textoPuntos[4]:setFillColor(0,0,0);
     
     colocarCartas()
     grpPartida:insert(grpJugadores[jugadores[1].numero])
@@ -1852,8 +1935,13 @@ function scene:hide(event)
 end
 
 function scene:destroy(event)
-    if(event.phase == "will") then
-    elseif (event.phase == "did") then
+    --if(event.phase == "will") then
+    --elseif (event.phase == "did") then
+    --end
+    print("destroy")
+    if grpPartida then
+        grpPartida:removeSelf()
+        grpPartida = nil
     end
 end
 
