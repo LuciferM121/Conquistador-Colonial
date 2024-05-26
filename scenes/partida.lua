@@ -53,6 +53,8 @@ local imgCartas = {
 
 }
 
+local pasarTurno
+
 --Son arreglos para guardar las cartas que aparecen en la pantalla
 local cartasjugador = {{}, {}, {}, {}}
 
@@ -168,7 +170,11 @@ local pasar
 
 local posicionLadronA = nil
 local probabilidadA = 0
-local posicionLadronO = 0
+
+
+local cantidadesCartas = {}
+
+
 
 --Bolillo y Sebastian
 local cartasDadas = 0
@@ -268,6 +274,16 @@ local function pasalo()
     jugando.isVisible = false
 end
 
+local function actualizarTextoRecursos()
+    cantidadesCartas[1].text = string.format(jugadores[jugadorActual].cartas1)
+    cantidadesCartas[2].text = string.format(jugadores[jugadorActual].cartas2)
+    cantidadesCartas[3].text = string.format(jugadores[jugadorActual].cartas3)
+    cantidadesCartas[4].text = string.format(jugadores[jugadorActual].cartas4)
+    cantidadesCartas[5].text = string.format(jugadores[jugadorActual].cartas5)
+    cantidadesCartas[6].text = string.format(jugadores[jugadorActual].cartas6)
+    
+end
+
 local function desactivarCaminos()
     for i =1, 72 do
         if aristaClase[i].ocupado == false then
@@ -309,33 +325,6 @@ local function asignarProbabilidad(posicion) --Funcion para randomizar la probab
         return valor
         end   
     end
-end
-
-local function aumentar(carta, i)
-        if carta == 1 then
-            jugadores[i].cartas1 = jugadores[i].cartas1 + 1
-        elseif carta == 2  then
-            jugadores[i].cartas2 = jugadores[i].cartas2 + 1
-        elseif carta == 3  then
-            jugadores[i].cartas3 = jugadores[i].cartas3 + 1
-        elseif carta == 4  then
-            jugadores[i].cartas4 = jugadores[i].cartas4 + 1
-        elseif carta == 5  then
-            jugadores[i].cartas5 = jugadores[i].cartas5 + 1
-        end
-end
-
-local function verOcupacion(j, i)
-    if verticeClase[j].ocupado == true then
-        aumentar(numeroHexagonos[i][1], verticeClase[j].jugador)
-    end
-end
-
-local function actualizarTextoTiempo()
-    local minutos = math.floor(tiempoRestante / 60)
-    local segundos = tiempoRestante % 60
-    local tiempoFormateado = string.format("%02d:%02d", minutos, segundos)
-    textoTiempo.text = tiempoFormateado
 end
 
 local function actualizarRecursos() --La funcion mas larga, es para actualizar las cartas de los jugadores, si usted que lee esto tiene una idea para hacerla corta, adelante
@@ -391,7 +380,40 @@ local function actualizarRecursos() --La funcion mas larga, es para actualizar l
             cartasjugador[i][6].fill = { type="image", filename="Imagenes/CartasM/tcartas.png" }
         end
     end
+    actualizarTextoRecursos()
 end
+
+local function aumentar(carta, i)
+        if carta == 1 then
+            jugadores[i].cartas1 = jugadores[i].cartas1 + 1
+        elseif carta == 2  then
+            jugadores[i].cartas2 = jugadores[i].cartas2 + 1
+        elseif carta == 3  then
+            jugadores[i].cartas3 = jugadores[i].cartas3 + 1
+        elseif carta == 4  then
+            jugadores[i].cartas4 = jugadores[i].cartas4 + 1
+        elseif carta == 5  then
+            jugadores[i].cartas5 = jugadores[i].cartas5 + 1
+        end
+        actualizarRecursos()
+end
+
+local function verOcupacion(j, i)
+    if verticeClase[j].ocupado == true then
+        aumentar(numeroHexagonos[i][1], verticeClase[j].jugador)
+    end
+end
+
+local function actualizarTextoTiempo()
+    local minutos = math.floor(tiempoRestante / 60)
+    local segundos = tiempoRestante % 60
+    local tiempoFormateado = string.format("%02d:%02d", minutos, segundos)
+    textoTiempo.text = tiempoFormateado
+end
+
+
+
+
 
 local function continuaCaminos(arista)
     for j =1, 72 do
@@ -445,7 +467,7 @@ local function actualizarTemporizador()
         timer.cancel(temporizador)
         tiempoRestante = 40
         temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
-        desactivarCaminos()
+        --[[desactivarCaminos()
         for i in ipairs(verticeClase) do
             verticesC[i].isVisible = true
         end
@@ -465,14 +487,17 @@ local function actualizarTemporizador()
             jugadorActual = 1
             ronda = ronda + 1 
         end
-        --desactivarCaminos()
+        pasalo()
+        --desactivarCaminos()]]
+        pasalo()
+        --pasarTurno()
     else
         actualizarTextoTiempo()
         
     end
 end
 
-local function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
+function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
     background2.isVisible = false
     pasar.isVisible = false
     seguir.isVisible = false
@@ -534,6 +559,7 @@ local function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
     actualizarTextoTiempo()
     desactivarCaminos()
+    actualizarTextoRecursos()
     --reactivarCaminos()
 end
 
@@ -572,11 +598,9 @@ end
 
 local function obtenerRecursos()
     local probabilidad = dice1 + dice2
-    --print("probabilidad: ",probabilidad)
     if probabilidad ~= 7 then
         for i =1, 19 do
             if numeroHexagonos[i][2] == probabilidad -1 then
-                --print("Hexagono: ", i)
                 for j = 1, 6 do
                     verOcupacion(numeroHexagonos[i][3][j], i)
                 end
@@ -637,6 +661,16 @@ local function dibujarNumeros()
     end
 end
 
+local function  colocarTextoCartas()
+    local x = 180
+    local y = 200
+    for j =1, 6 do
+        local cartas = display.newText("0", x - 90 , y, native.systemFont, 70)
+        y = y + 150
+        cantidadesCartas[j] = cartas
+    end
+end
+
 local function colocarCartas()
     local x = 180
     local y = 200
@@ -651,7 +685,10 @@ local function colocarCartas()
             table.insert(cartasjugador[i],carta)
         end
     end
+    colocarTextoCartas()
 end
+
+
 
 local function dibujarHexagonos()
     --HEXAGONOS
@@ -1261,12 +1298,12 @@ end
 
 local seleccionParaDar
 
-local function arbolTrade(event, contador)
+local function arbolTrade(event, carta)
     local i = jugadorActual
 
     if  verticeClase[4].ocupado or verticeClase[5].ocupado then
         if verticeClase[4].jugador == jugadorActual or verticeClase[5].jugador == jugadorActual then
-            jugadores[i].cartas1 = jugadores[i].carta1 - 2
+            jugadores[i].cartas1 = jugadores[i].cartas1 - 2
         else
             jugadores[i].cartas1 = jugadores[i].cartas1 - 3
         end
@@ -1276,11 +1313,11 @@ local function arbolTrade(event, contador)
     arbolUser.isVisible=false
     
     actualizarRecursos()
-    contador = true
-    seleccionParaDar(contador)
+    local contador = true
+    seleccionParaDar(contador,carta)
 end
 
-local function trigoTrade(event, contador)
+local function trigoTrade(event, carta)
     local i = jugadorActual
     if verticeClase[1].ocupado or verticeClase[2].ocupado then
         if verticeClase[1].jugador == jugadorActual or verticeClase[2].jugador == jugadorActual then
@@ -1295,16 +1332,16 @@ local function trigoTrade(event, contador)
     trigoUser.isVisible=false
     
     actualizarRecursos()
-    contador = true
-    seleccionParaDar(contador)
+    local contador = true
+    seleccionParaDar(contador,carta)
 end
 
-local function rocaTrade(event, contador)
+local function rocaTrade(event, carta)
     local i = jugadorActual
 
     if verticeClase[15].ocupado  or verticeClase[16].ocupado  then
         if verticeClase[15].jugador == jugadorActual or verticeClase[16].jugador == jugadorActual  then
-            jugadores[i].cartas5 = jugadores[i].carta5 - 2
+            jugadores[i].cartas5 = jugadores[i].cartas5 - 2
         else
             jugadores[i].cartas5 = jugadores[i].cartas5 - 3
         end
@@ -1314,16 +1351,16 @@ local function rocaTrade(event, contador)
     rocaUser.isVisible = false
    
     actualizarRecursos()
-    contador = true
-    seleccionParaDar(contador)
+    local contador = true
+    seleccionParaDar(contador,carta)
 end
 
-local function ladrilloTrade(event, contador)
+local function ladrilloTrade(event, carta)
     local i = jugadorActual
 
     if verticeClase[29].ocupado  or verticeClase[39].ocupado then
         if verticeClase[29].jugador == jugadorActual or verticeClase[39].jugador == jugadorActual then
-            jugadores[i].cartas3 = jugadores[i].carta3 - 2
+            jugadores[i].cartas3 = jugadores[i].cartas3 - 2
         else
             jugadores[i].cartas3 = jugadores[i].cartas3 - 3
         end
@@ -1334,15 +1371,15 @@ local function ladrilloTrade(event, contador)
     ladrilloUser.isVisible = false
     
     actualizarRecursos()
-    contador = true
-    seleccionParaDar(contador)
+    local contador = true
+    seleccionParaDar(contador,carta)
 end
 
-local function vacaTrade(event, contador)
+local function vacaTrade(event, carta)
     local i = jugadorActual
     if verticeClase[18].ocupado  or verticeClase[8].ocupado then
         if verticeClase[18].jugador == jugadorActual or verticeClase[8].jugador == jugadorActual then
-            jugadores[i].cartas4 = jugadores[i].carta4 - 2
+            jugadores[i].cartas4 = jugadores[i].cartas4 - 2
         else
             jugadores[i].cartas4 = jugadores[i].cartas4 - 3
         end
@@ -1354,8 +1391,8 @@ local function vacaTrade(event, contador)
     vacaUser.isVisible = false
     
     actualizarRecursos()
-    contador = true
-    seleccionParaDar(contador)
+    local contador = true
+    seleccionParaDar(contador,carta)
 end
 
 function seleccionParaDar(contador1, carta)
@@ -1367,18 +1404,19 @@ function seleccionParaDar(contador1, carta)
     trigoUser.isVisible = false
     print("tuputamadrejimbo")
     if contador1 then
+        print(carta)
         if carta == 1 then
-            jugadores[jugadorActual].carta1 = jugadores[jugadorActual].carta1+1
+            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 + 1
         elseif carta == 2 then
-            jugadores[jugadorActual].carta2 = jugadores[jugadorActual].carta2+1
+            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 + 1
         elseif carta == 3 then
-            jugadores[jugadorActual].carta3 = jugadores[jugadorActual].carta3+1
+            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 + 1
         elseif carta == 4 then
-            jugadores[jugadorActual].carta4 = jugadores[jugadorActual].carta4+1
+            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 + 1
         elseif carta == 5 then
-            jugadores[jugadorActual].carta5 = jugadores[jugadorActual].carta5+1
+            jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 + 1
         elseif carta == 6 then
-            jugadores[jugadorActual].carta6 = jugadores[jugadorActual].carta6+1
+            jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 + 1
         end
         print("tuputamadrejimbo2")
         actualizarRecursos()
@@ -1386,7 +1424,7 @@ function seleccionParaDar(contador1, carta)
         do return end
     end
     
-    actualizarRecursos()
+    --actualizarRecursos()
 
     local i = jugadorActual
     if jugadores[i].cartas1 >= 3 then
@@ -1422,11 +1460,11 @@ function seleccionParaDar(contador1, carta)
     end
 
 
-    arbolUser:addEventListener("tap", function(event) arbolTrade(event, contador1) end)
-    trigoUser:addEventListener("tap", function(event) trigoTrade(event, contador1) end)
-    ladrilloUser:addEventListener("tap", function(event) ladrilloTrade(event, contador1) end)
-    vacaUser:addEventListener("tap", function(event) vacaTrade(event, contador1) end)
-    rocaUser:addEventListener("tap", function(event) rocaTrade(event, contador1) end)
+    arbolUser:addEventListener("tap", function(event) arbolTrade(event, carta) end)
+    trigoUser:addEventListener("tap", function(event) trigoTrade(event, carta) end)
+    ladrilloUser:addEventListener("tap", function(event) ladrilloTrade(event, carta) end)
+    vacaUser:addEventListener("tap", function(event) vacaTrade(event, carta) end)
+    rocaUser:addEventListener("tap", function(event) rocaTrade(event, carta) end)
 end
 
 local tradear
