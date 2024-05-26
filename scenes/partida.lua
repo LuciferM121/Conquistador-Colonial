@@ -269,6 +269,10 @@ local function pasalo()
     for i = 1, 72 do
         aristas[i].isVisible = false
     end
+    for i = 1, 6 do
+        cantidadesCartas[i].isVisible = false
+    end
+
     pasar.isVisible = true
     seguir.isVisible = true
     jugando.isVisible = false
@@ -516,13 +520,13 @@ function pasarTurno() --Función para pasar el Turno al siguiente jugador.
     end
 
     for i in ipairs(aristaClase) do
-
-            if aristaClase[i].ocupado == true then
-                aristas[i].isVisible = true
-            end
-
+        if aristaClase[i].ocupado == true then
+            aristas[i].isVisible = true
+        end
     end
-    
+    for i = 1, 6 do
+        cantidadesCartas[i].isVisible = true
+    end
     turno = true
     if jugadorActual ==1 then 
         jugando.text = jugadores[2].nombre
@@ -1041,11 +1045,11 @@ local function colocarCasas()
     end
 ]]
 
-for i in ipairs(verticesC) do
-    if verticeClase[i].ocupado == false then
-       verticesC[i].isVisible = false
-    end    
-end
+    for i in ipairs(verticesC) do
+        if verticeClase[i].ocupado == false then
+        verticesC[i].isVisible = false
+        end    
+    end
    
     for posicion = 1, 54 do
         if verticeClase[posicion].ocupado == true and verticeClase[posicion].jugador == jugadorActual then
@@ -1062,8 +1066,6 @@ end
                             end
                         end   
                     end
-                    
-
                 end
             end
         end
@@ -1081,24 +1083,29 @@ local function verificarRecursos(i)
         if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas2>=1 and jugadores[jugadorActual].cartas3>=1 and jugadores[jugadorActual].cartas4>=1 then
             return true
         end
-    else 
+    elseif i == 2 then 
         if jugadores[jugadorActual].cartas2>=3 and jugadores[jugadorActual].cartas5>=2 then
             return true
-        end   
+        end
+    else
+        if jugadores[jugadorActual].cartas1>=1 and jugadores[jugadorActual].cartas3>=1 then
+            return true
+        end 
     end
     return false
 end
 
 local function cambiarImagenC(event) --Coloca las casas 
-    local imagenClicada = event.target
-    local posicion
-    for i, imagen in ipairs(verticesC) do
-        if imagen == imagenClicada then
-            posicion = i
-            break
-        end 
-    end
-
+    if jugadores[jugadorActual].ciudadesD >0 then
+        local imagenClicada = event.target
+        local posicion
+        for i, imagen in ipairs(verticesC) do
+            if imagen == imagenClicada then
+                posicion = i
+                break
+            end 
+        end
+    
         if (verificarRecursos(2)) and verticeClase[posicion].jugador == jugadorActual then
             
             verticeClase[posicion].ocupado = true
@@ -1113,8 +1120,12 @@ local function cambiarImagenC(event) --Coloca las casas
             imagenClicada.width = 75
             imagenClicada.height = 90
             actualizarRecursos()
-            
+            jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
+            jugadores[jugadorActual].casasD = jugadores[jugadorActual].casasD + 1
+            jugadores[jugadorActual].ciudadesD = jugadores[jugadorActual].ciudadesD - 1
         end
+    end
+
 end
         
 function cambiarCiudad()
@@ -1137,100 +1148,89 @@ function quitar()
 end
 
 local function cambiarImagen(event) --Coloca las casas 
-    local imagenClicada = event.target
-    local posicion
-    for i, imagen in ipairs(verticesC) do
-        if imagen == imagenClicada then
-            posicion = i
-            break
-        end 
-    end
-    if verticeClase[posicion].ocupado == false then
-        local banderaNoAdyacentes = true
-        for i in ipairs(verticesC) do
-            if verticeClase[i].ocupado == true then
-                banderaNoAdyacentes = noSonAdyacentes(posicion,i)
-                if banderaNoAdyacentes == false then
-                    break
+    if jugadores[jugadorActual].casasD > 0 then
+        local imagenClicada = event.target
+        local posicion
+        for i, imagen in ipairs(verticesC) do
+            if imagen == imagenClicada then
+                posicion = i
+                break
+            end 
+        end
+        if verticeClase[posicion].ocupado == false then
+            local banderaNoAdyacentes = true
+            for i in ipairs(verticesC) do
+                if verticeClase[i].ocupado == true then
+                    banderaNoAdyacentes = noSonAdyacentes(posicion,i)
+                    if banderaNoAdyacentes == false then
+                        break
+                    end
                 end
             end
-        end
 
 
-        if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
-            
-            verticeClase[posicion].ocupado = true
-            verticeClase[posicion].jugador = jugadorActual
-            verticeClase[posicion].tipoC = 1
-            if ronda ==1 then
-                jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
-            else
-                jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
-                jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
-                jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
-                jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+            if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
+                
+                verticeClase[posicion].ocupado = true
+                verticeClase[posicion].jugador = jugadorActual
+                verticeClase[posicion].tipoC = 1
+                if ronda ==1 then
+                    jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
+                else
+                    jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
+                    jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
+                    jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
+                    jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
+                end
+                imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
+                imagenClicada:toFront()
+                --imagenClicada:scale(5,5)
+                imagenClicada.width = 75
+                imagenClicada.height = 90
+                actualizarRecursos()
+                jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
+                jugadores[jugadorActual].casasD = jugadores[jugadorActual].casasD -1
+                activarCaminos()
             end
-            imagenClicada.fill = { type="image", filename="Imagenes/Construccion/casa"..jugadorActual..".png" }
-            imagenClicada:toFront()
-            --imagenClicada:scale(5,5)
-            imagenClicada.width = 75
-            imagenClicada.height = 90
-            actualizarRecursos()
+            banderaNoAdyacentes = true
+            --print(posicion)
             
         end
-        banderaNoAdyacentes = true
-        --print(posicion)
-        activarCaminos()
+        
     end
+    
         
 end
 
 local function cambiarImagen2(event) --Coloca las casas 
-    local imagenClicada = event.target
-    local posicion
-    for i, imagen in ipairs(aristas) do
-        if imagen == imagenClicada then
-            posicion = i
-            break
-        end 
-    end
-
-    --local banderaNoAdyacentes = true
-    --[[for i in ipairs(aristaClase) do
-        if verticeClase[i].ocupado == true then
-            banderaNoAdyacentes = noSonAdyacentes(posicion,i)
-            if banderaNoAdyacentes == false then
+    if jugadores[jugadorActual].caminosD > 0 then
+        local imagenClicada = event.target
+        local posicion
+        for i, imagen in ipairs(aristas) do
+            if imagen == imagenClicada then
+                posicion = i
                 break
-            end
+            end 
         end
-    end]]
-
-
-    --if (verificarRecursos(1) or (ronda == 1 and jugadores[jugadorActual].casaL >= 1)) and banderaNoAdyacentes == true then
-        
-        aristaClase[posicion].ocupado = true
-        aristaClase[posicion].jugador = jugadorActual
-        --verticeClase[posicion].tipoC = 1
-        --[[if ronda ==1 then
-            jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
-        else
-            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
-            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
-            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
-            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 -1
-        end]]
-        imagenClicada.fill = { type="image", filename="Imagenes/caminos/"..jugadorActual..aristaClase[posicion].inclinacion..".png" }
-        --imagenClicada:scale(5,5)
-        imagenClicada.width = 75
-        imagenClicada.height = 70
-        imagenClicada:removeEventListener("tap",cambiarImagen2)
-        --actualizarRecursos()
-        
-        continuaCaminos(aristaClase[posicion])
-    --end
-    --banderaNoAdyacentes = true
-    --print(posicion)
-    --
+    
+        if verificarRecursos(0) or (ronda ==1 and jugadores[jugadorActual].caminoL > 0) then
+            if ronda ==1 then
+                jugadores[jugadorActual].caminoL = jugadores[jugadorActual].caminoL -1 
+            else
+                jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
+                jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
+            end
+            imagenClicada.fill = { type="image", filename="Imagenes/caminos/"..jugadorActual..aristaClase[posicion].inclinacion..".png" }
+            imagenClicada.width = 75
+            imagenClicada.height = 70
+            imagenClicada:removeEventListener("tap",cambiarImagen2)
+            actualizarRecursos() 
+            continuaCaminos(aristaClase[posicion])
+            aristaClase[posicion].ocupado = true
+            aristaClase[posicion].jugador = jugadorActual
+            jugadores[jugadorActual].caminosD = jugadores[jugadorActual].caminosD -1 
+        end            
+    end
     
 end
 
@@ -1277,6 +1277,8 @@ local function hazLaLuz()
     COMOQUIERAS()
 
 end
+
+
 
 --Bolillo y SeRaTo12
 local function terminar()
