@@ -152,7 +152,7 @@ local verticeClase = {}
 local aristas = {}
 local caminosFlag = false
 local aristaClase = {}
-local especiales = {{1,1,1,1,1}, {1,2,1,1,1}, {1,3,1,1,1}, {1,4,1,1,1}}
+local especiales = {{0,0,0,0,0}, {0,0,0,0,0}, {0,0,0,0,0}, {0,6,0,0,0}}
 
 local bandEspeciales = false
 local cartaEsp = {{},{},{},{}}
@@ -225,6 +225,7 @@ local seleccionParaDar
 local seleccionParaDarJugador
 local tarjetasEspeciales
 local terminar
+local cancelar
 
 --Creacion de clases
 
@@ -367,6 +368,7 @@ local function rechazar()
         end
         tradeoTexto:removeSelf()
         btnRechazar:removeSelf()
+        textoTiempo.isVisible = true
         terminar()
         for i in ipairs(verticeClase) do
             if ronda > 1 then
@@ -473,10 +475,6 @@ local function tradeoPlayers(CartaRecibir, Dar, bank, user)
     aceptar2.y = cy - 120
     btnAceptarT[2] = aceptar2
 
-    
-
-    
-
     btnRechazar = display.newImageRect(grpPartida,"Imagenes/Menu/rechazar.png", 285, 100)
     btnRechazar.x = cx
     btnRechazar.y = cy + 50
@@ -525,11 +523,7 @@ end
 
 local function salirAlMenu()
     
-    --local currentScene = composer.getSceneName("current")
-    --if currentScene then
-    --    composer.removeScene(currentScene, true)
-    --end
-    --composer.gotoScene("scenes.menu")
+
     native.requestExit()
     
 end
@@ -778,15 +772,48 @@ local function reactivarCaminos()
 end
 
 local function otorgarPuntosLadrones()
+    jugadores[jugadorActual].ladrones = jugadores[jugadorActual].ladrones + 1
     if cantLadrones < jugadores[jugadorActual].ladrones then
         jugadores[jugadorActual].puntos =  jugadores[jugadorActual].puntos + 2
         mayorLadron = jugadorActual
+        cantLadrones = jugadores[jugadorActual].ladrones
         if cantLadrones ~= 0 then
-            jugadores[mayorLadron].puntos =  jugadores[mayorLadron].puntos
+            jugadores[mayorLadron].puntos =  jugadores[mayorLadron].puntos - 2 
         end
     end
     
 end
+
+local function quitarCartasLadron(i)
+    for j = 1, 6 do
+        if verticeClase[numeroHexagonos[i][3][j]].ocupado == true then
+            if jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas1 > 0 then
+                jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas1 = jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas1 - 1
+                jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 + 1
+                return
+            elseif jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas2 > 0 then
+                jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas2 = jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas2 - 1
+                jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 + 1
+                return
+            elseif jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas3 > 0 then
+                jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas3 = jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas3 - 1
+                jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 + 1
+                return
+            elseif jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas4 > 0 then
+                jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas4 = jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas4 - 1
+                jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 + 1
+                return
+            elseif jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas5 > 0 then
+                jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas5 = jugadores[verticeClase[numeroHexagonos[i][3][j]].jugador].cartas5 - 1
+                jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 + 1
+                return
+            end
+        end
+    end
+    actualizarRecursos()
+    actualizarTextoCartasT()
+end
+
 
 local function moverLadron(event)
     otorgarPuntosLadrones()
@@ -800,7 +827,7 @@ local function moverLadron(event)
             break
         end
     end
-    jugadores[jugadorActual].ladrones = jugadores[jugadorActual].ladrones + 1
+    quitarCartasLadron(posi)
     if probabilidadA == 0 then
         probabilidadA = numeroHexagonos[posi][2] --La probalidad antes de ladron
         posicionLadronA = posi --Ubicacion del ladron
@@ -1379,31 +1406,33 @@ end
 
 local function colocarCasas()
 
-    for i in ipairs(verticesC) do
-        if verticeClase[i].ocupado == false then
-        verticesC[i].isVisible = false
-        end    
-    end
-   
-    for posicion = 1, 54 do
-        if verticeClase[posicion].ocupado == true and verticeClase[posicion].jugador == jugadorActual then
-            local banderaNoAdyacentes = true
-            for i in ipairs(verticesC) do
-                if verticeClase[i].ocupado == false then
-                    if i ~= posicion then
-                        banderaNoAdyacentes = noSonAdyacentes(posicion,i)
-                        for j in ipairs(aristaClase) do
-                            if (aristaClase[j].verticeI == verticeClase[i] or aristaClase[j].verticeF == verticeClase[i]) and aristaClase[j].ocupado == true and aristaClase[j].jugador == jugadorActual then
-                                if banderaNoAdyacentes then
-                                    verticesC[i].isVisible = true
+    if ronda >= 2 then
+        for i in ipairs(verticesC) do
+            if verticeClase[i].ocupado == false then
+            verticesC[i].isVisible = false
+            end    
+        end
+       
+        for posicion = 1, 54 do
+            if verticeClase[posicion].ocupado == true and verticeClase[posicion].jugador == jugadorActual then
+                local banderaNoAdyacentes = true
+                for i in ipairs(verticesC) do
+                    if verticeClase[i].ocupado == false then
+                        if i ~= posicion then
+                            banderaNoAdyacentes = noSonAdyacentes(posicion,i)
+                            for j in ipairs(aristaClase) do
+                                if (aristaClase[j].verticeI == verticeClase[i] or aristaClase[j].verticeF == verticeClase[i]) and aristaClase[j].ocupado == true and aristaClase[j].jugador == jugadorActual then
+                                    if banderaNoAdyacentes then
+                                        verticesC[i].isVisible = true
+                                    end
                                 end
-                            end
-                        end   
+                            end   
+                        end
                     end
                 end
             end
         end
-    end   
+    end  
 end
 
 local function intercambio(a,b) --Arregla las posiciones de los vertices
@@ -1691,7 +1720,9 @@ local function puntoMas()
         actualizarRecursos()
         actualizarTextoEspeciales()
         jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
+
         actualizarTextoPuntos()
+        verificarGanador()
     end
     
 end
@@ -2302,6 +2333,7 @@ function seleccionParaDarJugador(contador1, cartaRecibir, Dar, jug, bank)
                 img = nil
             end
         end
+        textoTiempo.isVisible = true
         tradeoTexto:removeSelf()
         btnRechazar:removeSelf()
         terminar()
@@ -2324,7 +2356,10 @@ function seleccionParaDarJugador(contador1, cartaRecibir, Dar, jug, bank)
         for i = 1, 6 do
             cantidadesCartas[i].isVisible = true
         end
-
+        tradeo:removeEventListener("tap", cancelar)
+        tradeo:addEventListener("tap", elegir)
+        btnvisibles = false
+        print("siiii")
         do return end
     end
     
@@ -2373,7 +2408,7 @@ end
 
 
 --cancelar tradeo
-local function cancelar()
+function cancelar()
     rocaBank.isVisible = false
     trigoBank.isVisible = false
     vacaBank.isVisible = false
