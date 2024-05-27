@@ -25,6 +25,8 @@ local dice2
 local boton
 local ronda = 1
 
+local tirarDados = false
+
 local imgHex = {
     "Imagenes/hexagonos/12.png",
     "Imagenes/hexagonos/13.png",
@@ -146,7 +148,10 @@ local hexagonosM = {}
 local verticesC = {}
 local verticeClase = {}
 local aristas = {}
+local caminosFlag = false
 local aristaClase = {}
+local especiales = {{1,1,1,1,1}, {1,2,1,1,1}, {1,3,1,1,1}, {1,4,1,1,1}}
+local cartaRobar = {}
 
 --Variable para controlar las repeticiones de los hexagonos
 local rep = {0,0,0,0,0,0}
@@ -176,9 +181,15 @@ local cantidadesCartas = {}
 
 local textoRonda = display.newText("", 150, display.contentHeight - 100, native.systemFont, 50)
 local textoPuntos = {}
+local textoEspeciales = {{},{},{},{}}
 local textoCartasT = {}
 local cuadrosJugando = {}
 
+local actualizaDado
+
+local btnAceptarT = {}
+local btnJugadores
+local btnBanco
 
 --Bolillo y Sebastian
 local cartasDadas = 0
@@ -195,6 +206,15 @@ local trigoUser
 local arbolUser
 local ladrilloUser
 local tradeo
+local tradeoTexto
+local usuariosTradeando = {}
+local btnRechazar
+
+local elegir
+local tradear
+local tradearJugadores
+local seleccionParaDar
+local seleccionParaDarJugador
 
 
 --Creacion de clases
@@ -266,6 +286,16 @@ end
 
 -- Funciones
 local function pasalo()
+    
+    textoTiempo.isVisible = false
+    if ronda >= 2 then
+        if tirarDados == false then
+            actualizaDado()
+        else
+            tirarDados = false
+        end
+        timer.pause(temporizador);
+    end
     background2.isVisible = true
     for i = 1, 54 do
         verticesC[i].isVisible = false
@@ -277,11 +307,141 @@ local function pasalo()
         cantidadesCartas[i].isVisible = false
     end
 
+    --[[for i = 1, 4 do
+        for j=1, 5 do
+            cartaEsp[i][j].isVisi
+        end
+        
+    end]]
+
     pasar.isVisible = true
     seguir.isVisible = true
     textoRonda.isVisible = false
     --jugando.isVisible = false
 end
+
+local function saberJugador(event,CartaRecibir, Dar)
+    local imagenClicada = event.target
+    local posi
+    for i, imagen in ipairs(btnAceptarT) do
+        if imagen == imagenClicada then
+            posi = i
+            break
+        end 
+    end
+    seleccionParaDarJugador(true, CartaRecibir, Dar, posi)
+    
+    
+end
+
+local function tradeoPlayers(CartaRecibir, Dar, bank, user)
+    bank.isVisible = false
+    user.isVisible = false
+    local rec
+    local da
+    if CartaRecibir ==1 then
+        rec = 'arbol'
+    elseif CartaRecibir == 2 then
+        rec = 'trigo'
+    elseif CartaRecibir == 3 then
+        rec = 'arcilla'
+    elseif CartaRecibir == 4 then
+        rec = 'vacas'
+    elseif CartaRecibir == 5 then
+        rec = 'rocas'
+    end
+    if Dar ==1 then
+        da = 'arbol'
+    elseif Dar == 2 then
+        da = 'trigo'
+    elseif Dar == 3 then
+        da = 'arcilla'
+    elseif Dar == 4 then
+        da = 'vacas'
+    elseif Dar == 5 then
+        da = 'rocas'
+    end
+    tradeoTexto = display.newText("El jugador, "..jugadores[jugadorActual].nombre.." ha ofrecido "..da.." a cambio de " ..rec, cx, cy -500, native.systemFont, 70)
+    textoTiempo.isVisible = false
+    background2.isVisible = true
+    btnBanco.isVisible = false
+    btnJugadores.isVisible = false
+    textoRonda.isVisible = false
+    
+    for i = 1, 54 do
+        verticesC[i].isVisible = false
+    end
+    for i = 1, 72 do
+        aristas[i].isVisible = false
+    end
+    for i = 1, 6 do
+        cantidadesCartas[i].isVisible = false
+    end
+
+    local usuario1 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario4.png", 285, 370)
+    usuario1.x = cx - 300 
+    usuario1.y = cy - 300
+    usuariosTradeando[1] = usuario1
+
+    local aceptar3 = display.newImageRect(grpPartida,"Imagenes/Menu/aceptar.png", 285, 100)
+    aceptar3.x = cx - 300
+    aceptar3.y = cy + 470
+    btnAceptarT[3] = aceptar3
+
+    local usuario2 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario3.png", 285, 370)
+    usuario2.x = cx + 300
+    usuario2.y = cy - 300
+    usuariosTradeando[2] = usuario2
+
+    local aceptar4 = display.newImageRect(grpPartida,"Imagenes/Menu/aceptar.png", 285, 100)
+    aceptar4.x = cx + 300
+    aceptar4.y = cy + 470
+    btnAceptarT[4] = aceptar4
+
+    local usuario3 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario1.png", 285, 370)
+    usuario3.x = cx - 300
+    usuario3.y = cy + 300
+    usuariosTradeando[3] = usuario3
+
+    local aceptar1 = display.newImageRect(grpPartida,"Imagenes/Menu/aceptar.png", 285, 100)
+    aceptar1.x = cx - 300
+    aceptar1.y = cy - 120
+    btnAceptarT[2] = aceptar1
+
+    local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 285, 370)
+    usuario4.x = cx + 300
+    usuario4.y = cy + 300
+    usuariosTradeando[4] = usuario4
+
+    local aceptar2 = display.newImageRect(grpPartida,"Imagenes/Menu/aceptar.png", 285, 100)
+    aceptar2.x = cx + 300
+    aceptar2.y = cy - 120
+    btnAceptarT[1] = aceptar2
+
+    
+
+    
+
+    btnRechazar = display.newImageRect(grpPartida,"Imagenes/Menu/rechazar.png", 285, 100)
+    btnRechazar.x = cx
+    btnRechazar.y = cy + 50
+
+    if jugadorActual == 1 then
+        btnAceptarT[1].isVisible = false
+    elseif jugadorActual == 2 then
+        btnAceptarT[2].isVisible = false
+    elseif jugadorActual == 3  then
+        btnAceptarT[3].isVisible = false
+    else
+        btnAceptarT[4].isVisible = false
+    end
+   
+    for i =1, 4 do
+        btnAceptarT[i]:addEventListener("tap", function(event) saberJugador(event, CartaRecibir, Dar) end)
+    end
+    --jugando.isVisible = false
+end
+
 
 local function salirAlMenu()
     
@@ -295,6 +455,8 @@ local function salirAlMenu()
 end
 
 local function ganador(jugador)
+    textoTiempo.isVisible = false
+    timer.pause(temporizador);
     background2.isVisible = true
     for i = 1, 54 do
         verticesC[i].isVisible = false
@@ -346,6 +508,15 @@ end
 local function actualizarTextoPuntos()
     for i = 1, 4 do
         textoPuntos[i].text = string.format(jugadores[i].puntos)
+    end
+end
+
+local function actualizarTextoEspeciales()
+    for i = 1, 4 do
+        for j = 1, 5 do
+            textoEspeciales[i][j].text = string.format(especiales[i][j])
+        end
+        
     end
 end
 
@@ -526,6 +697,60 @@ local function reactivarCaminos()
     end
 end
 
+local function moverLadron(event)
+    local imagenClicada = event.target
+    local posi = 0
+    for i = 1, 19 do
+        if hexagonosM[i] == imagenClicada then
+                posi = i
+                print(posi)
+            break
+        end
+    end
+
+    if probabilidadA == 0 then
+        probabilidadA = numeroHexagonos[posi][2] --La probalidad antes de ladron
+        posicionLadronA = posi --Ubicacion del ladron
+        probHex[posi].fill = { type="image", filename=imgNum[6]}
+       -- probHex[posi].isVisible = false
+        numeroHexagonos[posi][2] = numeroHexagonos[posi][2] + 40 --Que no de recursos
+    else
+        probHex[posicionLadronA].fill = { type="image", filename=imgNum[probabilidadA]}
+        numeroHexagonos[posicionLadronA][2] = numeroHexagonos[posicionLadronA][2] - 40
+        probabilidadA = numeroHexagonos[posi][2]
+        posicionLadronA = posi
+        numeroHexagonos[posi][2] = numeroHexagonos[posi][2] + 40
+        probHex[posicionLadronA].fill = { type="image", filename=imgNum[6]}
+    end
+    for i = 1, 19 do
+        hexagonosM[i]:removeEventListener("tap",moverLadron)
+    end
+    boton:addEventListener("tap", pasalo)
+
+    --hexagonosM[hexagono].
+end
+
+local function obtenerRecursos()
+    local probabilidad = dice1 + dice2
+    if probabilidad ~= 7 then
+        for i =1, 19 do
+            if numeroHexagonos[i][2] == probabilidad -1 then
+                for j = 1, 6 do
+                    verOcupacion(numeroHexagonos[i][3][j], i)
+                end
+                
+            end
+        end
+    else
+        boton:removeEventListener("tap", pasalo)
+        for i = 1, 19 do
+            hexagonosM[i]:addEventListener("tap",moverLadron)
+        end
+    end
+    
+end
+
+
 local function actualizarTemporizador()
     tiempoRestante = tiempoRestante - 1
     
@@ -533,43 +758,46 @@ local function actualizarTemporizador()
         timer.cancel(temporizador)
         tiempoRestante = 40
         temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
-        --[[desactivarCaminos()
-        for i in ipairs(verticeClase) do
-            verticesC[i].isVisible = true
-        end
-        actualizarTextoTiempo()
-        turno = true
-        if jugadorActual ==1 then 
-            jugando.text = jugadores[2].nombre
-            jugadorActual = 2 
-        elseif jugadorActual ==2 then
-            jugando.text = jugadores[3].nombre
-            jugadorActual = 3 
-        elseif jugadorActual ==3 then
-            jugando.text = jugadores[4].nombre
-            jugadorActual = 4 
-        else
-            jugando.text = jugadores[1].nombre
-            jugadorActual = 1
-            ronda = ronda + 1 
-        end
         pasalo()
-        --desactivarCaminos()]]
-        pasalo()
-        --pasarTurno()
     else
         actualizarTextoTiempo()
         
     end
 end
+function actualizaDado() --Función para cambiar la imagen de los dados
+    tirarDados = true
+    dice1 = math.random(6)
+    dice2 = math.random(6)
+    if turno == true then
+        turno = false
+        dado1.fill = { type="image", filename="Imagenes/dado"..dice1..".png" }
+        dado2.fill = { type="image", filename="Imagenes/dado"..dice2..".png" }
+        obtenerRecursos()
+        boton:addEventListener("tap", pasalo)
+    end
+end
 
 function pasarTurno() --Función para pasar el Turno al siguiente jugador. 
+    textoTiempo.isVisible = true
+    if ronda >= 2 then
+        timer.resume(temporizador)
+        tirarDados = false    
+    end
     background2.isVisible = false
     pasar.isVisible = false
     seguir.isVisible = false
     textoRonda.isVisible = true
     --jugando.isVisible = true
-
+    if ronda == 1 then
+        boton:removeEventListener("tap", pasalo)
+    end
+    if ronda >=2 then
+        boton:removeEventListener("tap", pasalo)
+    end
+    if ronda == 1 and jugadorActual == 4 then
+        dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
+        dado2:addEventListener("tap", actualizaDado)
+    end
     for i in ipairs(verticeClase) do
         if ronda > 1 then
             if verticeClase[i].ocupado == true then
@@ -624,83 +852,33 @@ function pasarTurno() --Función para pasar el Turno al siguiente jugador.
         jugadorActual = 1
         cuadrosJugando[jugadorActual].isVisible = true
         ronda = ronda + 1
+        if ronda == 2 then
+            temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
+            -- Inicializar el objeto de texto con el tiempo restante inicial
+            tradeo:addEventListener("tap", elegir)
+            btnBanco:addEventListener("tap", tradear)
+            btnJugadores:addEventListener("tap",tradearJugadores)
+        actualizarTextoTiempo()
+        end
         textoRonda.text = "Ronda: "..ronda
         grpJugadores[4].isVisible = false
         grpJugadores[1].isVisible = true
 
     end
-    timer.cancel(temporizador)
-    tiempoRestante = 40
-    temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
-    actualizarTextoTiempo()
+    if ronda >= 2 and jugadorActual > 1 then
+        timer.cancel(temporizador)
+        tiempoRestante = 40
+        temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
+        actualizarTextoTiempo()
+    end
+    
     desactivarCaminos()
     actualizarTextoRecursos()
     --reactivarCaminos()
 end
 
-local function moverLadron(event)
-    local imagenClicada = event.target
-    local posi = 0
-    for i = 1, 19 do
-        if hexagonosM[i] == imagenClicada then
-                posi = i
-                print(posi)
-            break
-        end
-    end
 
-    if probabilidadA == 0 then
-        probabilidadA = numeroHexagonos[posi][2] --La probalidad antes de ladron
-        posicionLadronA = posi --Ubicacion del ladron
-        probHex[posi].fill = { type="image", filename=imgNum[6]}
-       -- probHex[posi].isVisible = false
-        numeroHexagonos[posi][2] = numeroHexagonos[posi][2] + 40 --Que no de recursos
-    else
-        probHex[posicionLadronA].fill = { type="image", filename=imgNum[probabilidadA]}
-        numeroHexagonos[posicionLadronA][2] = numeroHexagonos[posicionLadronA][2] - 40
-        probabilidadA = numeroHexagonos[posi][2]
-        posicionLadronA = posi
-        numeroHexagonos[posi][2] = numeroHexagonos[posi][2] + 40
-        probHex[posicionLadronA].fill = { type="image", filename=imgNum[6]}
-    end
-    for i = 1, 19 do
-        hexagonosM[i]:removeEventListener("tap",moverLadron)
-    end
-    boton:addEventListener("tap", pasalo)
 
-    --hexagonosM[hexagono].
-end
-
-local function obtenerRecursos()
-    local probabilidad = dice1 + dice2
-    if probabilidad ~= 7 then
-        for i =1, 19 do
-            if numeroHexagonos[i][2] == probabilidad -1 then
-                for j = 1, 6 do
-                    verOcupacion(numeroHexagonos[i][3][j], i)
-                end
-                
-            end
-        end
-    else
-        boton:removeEventListener("tap", pasalo)
-        for i = 1, 19 do
-            hexagonosM[i]:addEventListener("tap",moverLadron)
-        end
-    end
-    
-end
-
-local function actualizaDado() --Función para cambiar la imagen de los dados
-    dice1 = math.random(6)
-    dice2 = math.random(6)
-    if turno == true then
-        turno = false
-        dado1.fill = { type="image", filename="Imagenes/dado"..dice1..".png" }
-        dado2.fill = { type="image", filename="Imagenes/dado"..dice2..".png" }
-        obtenerRecursos()
-    end
-end
 
 local function dibujarNumeros()
     --NUMEROS
@@ -1235,7 +1413,10 @@ local function cambiarImagen(event) --Coloca las casas
                 verticeClase[posicion].jugador = jugadorActual
                 verticeClase[posicion].tipoC = 1
                 if ronda ==1 then
-                    jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1 
+                    jugadores[jugadorActual].casaL = jugadores[jugadorActual].casaL -1
+                    if jugadores[jugadorActual].caminoL == 0 and jugadores[jugadorActual].casaL == 0 then
+                        boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
+                    end 
                 else
                     jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
                     jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 -1
@@ -1275,9 +1456,12 @@ local function cambiarImagen2(event) --Coloca las casas
             end 
         end
     
-        if verificarRecursos(0) or (ronda ==1 and jugadores[jugadorActual].caminoL > 0) then
+        if verificarRecursos(0) or (ronda ==1 and jugadores[jugadorActual].caminoL > 0) or (caminosFlag == true and jugadores[jugadorActual].caminoL > 0) then
             if ronda ==1 then
-                jugadores[jugadorActual].caminoL = jugadores[jugadorActual].caminoL -1 
+                jugadores[jugadorActual].caminoL = jugadores[jugadorActual].caminoL -1
+                if jugadores[jugadorActual].caminoL == 0 and jugadores[jugadorActual].casaL == 0 then
+                    boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
+                end 
             else
                 jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
                 jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
@@ -1290,7 +1474,7 @@ local function cambiarImagen2(event) --Coloca las casas
             continuaCaminos(aristaClase[posicion])
             aristaClase[posicion].ocupado = true
             aristaClase[posicion].jugador = jugadorActual
-            jugadores[jugadorActual].caminosD = jugadores[jugadorActual].caminosD -1 
+            jugadores[jugadorActual].caminosD = jugadores[jugadorActual].caminosD -1  
         end            
     end
     
@@ -1340,6 +1524,248 @@ local function hazLaLuz()
 
 end
 
+local btnvisibles = false
+
+
+local function aparecerBotonesDeTradeo()
+    btnJugadores = display.newImageRect(grpPartida,"Imagenes/Menu/jugadores.png", 200,80)
+    btnJugadores.x = cx - 400
+    btnJugadores.y = cy + 350
+    
+    btnBanco = display.newImageRect(grpPartida,"Imagenes/Menu/banco.png", 200,80)
+    btnBanco.x = cx - 400
+    btnBanco.y = cy + 250
+    
+    btnJugadores.isVisible = false
+    btnBanco.isVisible = false
+
+end
+
+function elegir()
+    if btnvisibles == false then
+        btnJugadores.isVisible = true
+        btnBanco.isVisible = true
+        btnvisibles = true
+    else
+        btnJugadores.isVisible = false
+        btnBanco.isVisible = false
+        btnvisibles = false
+    end
+end
+
+local bandEspeciales = false
+local cartaEsp = {{},{},{},{}}
+
+local function colocarTextoEspeciales()
+    
+
+    for i = 1, 4 do
+        local x = 300
+        local y = 850
+
+        for j = 1, 5 do
+            textoEspeciales[i][j] = display.newText(grpPartida,"0", x, y+85, native.systemFont, 30 )
+            textoEspeciales[i][j]:setFillColor(255,255,255);
+            textoEspeciales[i][j].isVisible = false
+            x = x + 120
+        end
+
+    end
+end
+
+
+local function ladronEsp()
+    if especiales[jugadorActual][1] > 0 then
+        especiales[jugadorActual][1] = especiales[jugadorActual][1] - 1
+        actualizarRecursos()
+        jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarTextoEspeciales()
+        actualizarRecursos()
+        for i = 1, 19 do
+            hexagonosM[i]:addEventListener("tap",moverLadron)
+        end
+    end
+    
+end
+
+local function puntoMas()
+    if especiales[jugadorActual][2] > 0 then
+        especiales[jugadorActual][2] = especiales[jugadorActual][2] - 1
+        jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarRecursos()
+        actualizarTextoEspeciales()
+        jugadores[jugadorActual].puntos = jugadores[jugadorActual].puntos + 1
+        actualizarTextoPuntos()
+    end
+    
+end
+
+local function dosCaminos()
+    if especiales[jugadorActual][3] > 0 then
+        especiales[jugadorActual][3] = especiales[jugadorActual][3] - 1
+        actualizarRecursos()
+        jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarTextoEspeciales()
+        caminosFlag = true
+        jugadores[jugadorActual].caminoL = jugadores[jugadorActual].caminoL + 2
+        activarCaminos()
+    end
+    
+end
+
+local function robarTodo(event)
+    especiales[jugadorActual][3] = especiales[jugadorActual][5] - 1
+    actualizarRecursos()
+    jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+    actualizarTextoEspeciales()
+
+    local imagenClicada = event.target
+    local posi = 0
+    for i = 1, 5 do
+        if cartaRobar[i] == imagenClicada then
+                posi = i
+                print(posi)
+            break
+        end
+    end
+
+    local acumulado = 0
+
+    for i = 1, 4 do
+        if posi == 1 then
+            acumulado = acumulado + jugadores[i].cartas1
+        elseif posi == 2 then
+            acumulado = acumulado + jugadores[i].cartas2
+        elseif posi == 3 then
+            acumulado = acumulado + jugadores[i].cartas3
+        elseif posi == 4 then
+            acumulado = acumulado + jugadores[i].cartas4
+        else
+            acumulado = acumulado + jugadores[i].cartas5
+        end
+    end
+
+    for i = 1, 4 do
+        if posi == 1 then
+            jugadores[i].cartas1 = 0
+        elseif posi == 2 then
+            jugadores[i].cartas2 = 0
+        elseif posi == 3 then
+            jugadores[i].cartas3 = 0
+        elseif posi == 4 then
+            jugadores[i].cartas4 = 0
+        else
+            jugadores[i].cartas5 = 0
+        end
+    end
+
+    if posi == 1 then
+        jugadores[jugadorActual].cartas1 = acumulado
+    elseif posi == 2 then
+        jugadores[jugadorActual].cartas2 = acumulado
+    elseif posi == 3 then
+        jugadores[jugadorActual].cartas3 = acumulado
+    elseif posi == 4 then
+        jugadores[jugadorActual].cartas4 = acumulado
+    else
+        jugadores[jugadorActual].cartas5 = acumulado
+    end
+
+    actualizarRecursos()
+    actualizarTextoRecursos()
+    actualizarTextoCartasT()
+    
+end
+
+local function mostrarCartasRobarTodo()
+    if especiales[jugadorActual][5] > 0 then
+        for i = 1, 5 do
+        cartaRobar[i].isVisible = true
+        end
+    end
+    
+end
+
+local function colocarCartasRobarTodo()
+    local x = 260
+    local y = 80
+    for i = 1, 5 do
+        cartaRobar[i] = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas"..i.."1.png", 100, 140)
+        cartaRobar[i].x =  x    
+        cartaRobar[i].y =  y
+        cartaRobar[i]:addEventListener("tap",robarTodo)
+        cartaRobar[i].isVisible = false
+        y = y + 150
+    end
+    
+end
+
+local function colocarCartasEspeciales()
+        for i = 1,4 do
+            local x = 300
+            local y = 850
+    
+            cartaEsp[i][1] = display.newImageRect(grpPartida,"Imagenes/CartasM/ladron.png", 100, 140)
+            cartaEsp[i][1].x = x
+            cartaEsp[i][1].y = y
+            cartaEsp[i][1]:addEventListener("tap",ladronEsp)
+            x = x + 120
+            cartaEsp[i][1].isVisible = false
+    
+            cartaEsp[i][2] = display.newImageRect(grpPartida,"Imagenes/CartasM/punto.png", 100, 140)
+            cartaEsp[i][2].x = x
+            cartaEsp[i][2].y = y
+            cartaEsp[i][2]:addEventListener("tap",puntoMas)
+            x = x + 120
+            cartaEsp[i][2].isVisible = false
+    
+            cartaEsp[i][3] = display.newImageRect(grpPartida,"Imagenes/CartasM/dcaminos.png", 100, 140)
+            cartaEsp[i][3].x = x
+            cartaEsp[i][3].y = y
+            cartaEsp[i][3]:addEventListener("tap",dosCaminos)
+            x = x + 120
+            cartaEsp[i][3].isVisible = false
+    
+            cartaEsp[i][4] = display.newImageRect(grpPartida,"Imagenes/CartasM/dcartas.png", 100, 140)
+            cartaEsp[i][4].x = x
+            cartaEsp[i][4].y = y
+            x = x + 120
+            cartaEsp[i][4].isVisible = false
+    
+            cartaEsp[i][5] = display.newImageRect(grpPartida,"Imagenes/CartasM/especiales.png", 100, 140)
+            cartaEsp[i][5].x = x
+            cartaEsp[i][5].y = y
+            cartaEsp[i][3]:addEventListener("tap",mostrarCartasRobarTodo)
+            cartaEsp[i][5].isVisible = false
+        end
+end
+
+
+local function tarjetasEspeciales()
+    
+    if bandEspeciales == false then
+        actualizarTextoEspeciales()
+        for i = 1, 5 do
+            cartaEsp[jugadorActual][i].isVisible = true
+            textoEspeciales[jugadorActual][i].isVisible = true
+        end
+    end
+
+    if bandEspeciales == true then
+        actualizarTextoEspeciales()
+        for i = 1, 5 do
+            cartaEsp[jugadorActual][i].isVisible = false
+            textoEspeciales[jugadorActual][i].isVisible = false
+        end
+    end
+
+    if bandEspeciales == false then
+        bandEspeciales = true
+    elseif bandEspeciales == true then
+        bandEspeciales = false
+    end
+
+end
 
 
 --Bolillo y SeRaTo12
@@ -1357,14 +1783,14 @@ local function terminar()
     trigoUser.isVisible = false
     arbolUser.isVisible = false
     ladrilloUser.isVisible = false
-
+    --elegir()
+    
 end
 
-local seleccionParaDar
+
 
 local function arbolTrade(event, carta)
     local i = jugadorActual
-
     if  verticeClase[4].ocupado or verticeClase[5].ocupado then
         if verticeClase[4].jugador == jugadorActual or verticeClase[5].jugador == jugadorActual then
             jugadores[i].cartas1 = jugadores[i].cartas1 - 2
@@ -1380,6 +1806,48 @@ local function arbolTrade(event, carta)
     local contador = true
     seleccionParaDar(contador,carta)
 end
+
+
+local function arbolTradeJugador(event, cartaRecibir, Dar, bank)
+    tradeoPlayers(cartaRecibir, 1, bank, arbolUser)
+    ladrilloUser.isVisible = false
+    vacaUser.isVisible = false
+    rocaUser.isVisible = false
+    trigoUser.isVisible = false
+end
+
+local function trigoTradeJugador(event, cartaRecibir, Dar, bank)
+    tradeoPlayers(cartaRecibir, 2, bank, trigoUser)
+    arbolUser.isVisible = false
+    ladrilloUser.isVisible = false
+    vacaUser.isVisible = false
+    rocaUser.isVisible = false
+end
+
+local function ladrilloTradeJugador(event, cartaRecibir, Dar, bank)
+    tradeoPlayers(cartaRecibir, 3, bank, ladrilloUser)
+    arbolUser.isVisible = false
+    vacaUser.isVisible = false
+    rocaUser.isVisible = false
+    trigoUser.isVisible = false
+end
+
+local function vacaTradeJugador(event, cartaRecibir, Dar, bank)
+    tradeoPlayers(cartaRecibir, 4, bank, vacaUser)
+    arbolUser.isVisible = false
+    ladrilloUser.isVisible = false
+    rocaUser.isVisible = false
+    trigoUser.isVisible = false
+end
+
+local function rocaTradeJugador(event, cartaRecibir, Dar, bank)
+    tradeoPlayers(cartaRecibir, 5, bank, rocaUser)
+    arbolUser.isVisible = false
+    ladrilloUser.isVisible = false
+    vacaUser.isVisible = false
+    trigoUser.isVisible = false
+end
+
 
 local function trigoTrade(event, carta)
     local i = jugadorActual
@@ -1459,6 +1927,8 @@ local function vacaTrade(event, carta)
     seleccionParaDar(contador,carta)
 end
 
+
+
 function seleccionParaDar(contador1, carta)
     
     arbolUser.isVisible = false
@@ -1482,14 +1952,18 @@ function seleccionParaDar(contador1, carta)
         elseif carta == 6 then
             jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 + 1
         end
+
+
         print("tuputamadrejimbo2")
         actualizarRecursos()
+        timer.resume(temporizador)
         terminar()
         do return end
     end
     
     --actualizarRecursos()
 
+    
     local i = jugadorActual
     if jugadores[i].cartas1 >= 3 then
         arbolUser.fill = { type="image", filename="Imagenes/CartasM/cartas11.png" }
@@ -1531,7 +2005,160 @@ function seleccionParaDar(contador1, carta)
     rocaUser:addEventListener("tap", function(event) rocaTrade(event, carta) end)
 end
 
-local tradear
+
+local function quitarCartas(dar,jug)
+    if dar == 1 then
+        jugadores[jug].cartas1 = jugadores[jug].cartas1 - 1
+    elseif dar == 2 then
+        jugadores[jug].cartas2 = jugadores[jug].cartas2 - 1
+    elseif dar == 3 then
+        jugadores[jug].cartas3 = jugadores[jug].cartas3 - 1
+    elseif dar == 4 then
+        jugadores[jug].cartas4 = jugadores[jug].cartas4 - 1
+    elseif dar == 5 then
+        jugadores[jug].cartas5 = jugadores[jug].cartas5 - 1
+    end
+end
+
+local function sumarCartas(dar,jug)
+    if dar == 1 then
+        jugadores[jug].cartas1 = jugadores[jug].cartas1 + 1
+    elseif dar == 2 then
+        jugadores[jug].cartas2 = jugadores[jug].cartas2 + 1
+    elseif dar == 3 then
+        jugadores[jug].cartas3 = jugadores[jug].cartas3 + 1
+    elseif dar == 4 then
+        jugadores[jug].cartas4 = jugadores[jug].cartas4 + 1
+    elseif dar == 5 then
+        jugadores[jug].cartas5 = jugadores[jug].cartas5 + 1
+    end
+end
+
+
+function seleccionParaDarJugador(contador1, cartaRecibir, Dar, jug, bank)
+    
+    arbolUser.isVisible = false
+    ladrilloUser.isVisible = false
+    vacaUser.isVisible = false
+    rocaUser.isVisible = false
+    trigoUser.isVisible = false
+    print("tuputamadrejimbo")
+    if contador1 then
+        print(carta)
+        if cartaRecibir == 1 then
+            jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 + 1
+            quitarCartas(cartaRecibir,jug)
+            quitarCartas(Dar,jugadorActual)
+            sumarCartas(Dar,jug)
+        elseif cartaRecibir == 2 then
+            jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 + 1
+            quitarCartas(cartaRecibir,jug)
+            sumarCartas(Dar,jug)
+            quitarCartas(Dar,jugadorActual)
+        elseif cartaRecibir == 3 then
+            jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 + 1
+            quitarCartas(cartaRecibir,jug)
+            sumarCartas(Dar,jug)
+            quitarCartas(Dar,jugadorActual)
+        elseif cartaRecibir == 4 then
+            jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 + 1
+            quitarCartas(cartaRecibir,jug)
+            sumarCartas(Dar,jug)
+            quitarCartas(Dar,jugadorActual)
+        elseif cartaRecibir == 5 then
+            jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 + 1
+            quitarCartas(cartaRecibir,jug)
+            quitarCartas(Dar,jugadorActual)
+            sumarCartas(Dar,jug)
+        end
+        
+        print("tuputamadrejimbo2")
+        actualizarRecursos()
+        timer.resume(temporizador)
+        background2.isVisible = false
+        for i = #usuariosTradeando, 1, -1 do
+            local img = table.remove(usuariosTradeando, i)
+            if img and img.removeSelf then
+                img:removeSelf()
+                img = nil
+            end
+        end
+        for i = #btnAceptarT, 1, -1 do
+            local img = table.remove(btnAceptarT, i)
+            if img and img.removeSelf then
+                img:removeSelf()
+                img = nil
+            end
+        end
+        tradeoTexto:removeSelf()
+        btnRechazar:removeSelf()
+        terminar()
+        for i in ipairs(verticeClase) do
+            if ronda > 1 then
+                if verticeClase[i].ocupado == true then
+                    verticesC[i].isVisible = true
+                end
+            else
+                verticesC[i].isVisible = true
+            end
+            
+        end
+    
+        for i in ipairs(aristaClase) do
+            if aristaClase[i].ocupado == true then
+                aristas[i].isVisible = true
+            end
+        end
+        for i = 1, 6 do
+            cantidadesCartas[i].isVisible = true
+        end
+
+        do return end
+    end
+    
+    --actualizarRecursos()
+
+    local i = jugadorActual
+    if jugadores[i].cartas1 >= 1 then
+        arbolUser.fill = { type="image", filename="Imagenes/CartasM/cartas11.png" }
+        arbolUser.y = cy - 460
+        arbolUser.x = cx - 600
+        arbolUser.isVisible = true
+    end
+    if jugadores[i].cartas2 >=1 then
+        trigoUser.fill = { type="image", filename="Imagenes/CartasM/cartas21.png" }
+        trigoUser.y = cy - 310
+        trigoUser.x = cx - 600
+        trigoUser.isVisible = true
+    end
+    if jugadores[i].cartas3 >= 1 then
+        ladrilloUser.fill = { type="image", filename="Imagenes/CartasM/cartas31.png" }
+        ladrilloUser.y = cy - 160
+        ladrilloUser.x = cx - 600
+        ladrilloUser.isVisible = true
+    end
+    if jugadores[i].cartas4 >= 1 then
+        vacaUser.fill = { type="image", filename="Imagenes/CartasM/cartas41.png" }
+        vacaUser.y = cy - 10
+        vacaUser.x = cx - 600
+        vacaUser.isVisible = true
+    end
+
+    if jugadores[i].cartas5 >= 1 then
+        rocaUser.fill = { type="image", filename="Imagenes/CartasM/cartas51.png" }
+        rocaUser.y = cy + 140
+        rocaUser.x = cx - 600
+        rocaUser.isVisible = true
+    end
+
+
+    arbolUser:addEventListener("tap", function(event) arbolTradeJugador(event, cartaRecibir, Dar, bank) end)
+    trigoUser:addEventListener("tap", function(event) trigoTradeJugador(event, cartaRecibir, Dar, bank) end)
+    ladrilloUser:addEventListener("tap", function(event) ladrilloTradeJugador(event, cartaRecibir, Dar, bank) end)
+    vacaUser:addEventListener("tap", function(event) vacaTradeJugador(event, cartaRecibir, Dar, bank) end)
+    rocaUser:addEventListener("tap", function(event) rocaTradeJugador(event,cartaRecibir, Dar, bank) end)
+end
+
 
 --cancelar tradeo
 local function cancelar()
@@ -1548,9 +2175,9 @@ local function cancelar()
     trigoUser.isVisible = false
     arbolUser.isVisible = false
     ladrilloUser.isVisible = false
-
+    timer.resume(temporizador);
     tradeo:removeEventListener("tap", cancelar)
-    tradeo:addEventListener("tap", tradear)
+    tradeo:addEventListener("tap", elegir)
 end
 
 --tradeo de especiales como los del teleton
@@ -1561,7 +2188,21 @@ local function tradearCartaTeleton()
     vacaBank.isVisible = false
     ladrilloBank.isVisible = false
     arbolBank.isVisible = false
-    seleccionParaDar(false, 6)
+    --seleccionParaDar(false, 6)
+    if jugadores[jugadorActual].cartas2 >= 1 and jugadores[jugadorActual].cartas4 >= 1 and jugadores[jugadorActual].cartas5 >= 1 then
+        jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 - 1
+        jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 - 1
+        jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 - 1
+        jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 + 1
+        local randEspecial = math.random(5);
+        especiales[jugadorActual][randEspecial] = especiales[jugadorActual][randEspecial] + 1
+        
+        actualizarRecursos()
+        terminar()
+    else
+        cancelar()
+    end
+
 end
 
 --tradeo de arbol
@@ -1575,6 +2216,16 @@ local function tradearCartaArbol()
     seleccionParaDar(false, 1)
 end
 
+local function tradearCartaArbolJugador()
+    --jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 +1
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDarJugador(false, 1, 0, 0, arbolBank)
+end
+
 --tradeo de ladrillo
 local function tradearCartaLadrillo()
     --jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 +1
@@ -1584,6 +2235,16 @@ local function tradearCartaLadrillo()
     arbolBank.isVisible = false
     cartasEspeciales.isVisible = false
     seleccionParaDar(false, 3)
+end
+
+local function tradearCartaLadrilloJugador()
+    --jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 +1
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDarJugador(false, 3, 0, 0, ladrilloBank)
 end
 
 -- trade de trigo
@@ -1597,6 +2258,15 @@ local function tradearCartaTrigo()
     seleccionParaDar(false, 2)
 end
 
+local function tradearCartaTrigoJugador()
+    --jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 +1
+    rocaBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDarJugador(false, 2, 0, 0, trigoBank)
+end
 --tradeo de vacas
 local function tradearCartaVaca()
     --jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 +1
@@ -1608,6 +2278,16 @@ local function tradearCartaVaca()
     seleccionParaDar(false, 4)
 end
 
+local function tradearCartaVacaJugador()
+    --jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 +1
+    rocaBank.isVisible = false
+    trigoBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDarJugador(false, 4, 0, 0, vacaBank)
+end
+
 --tradeo de rocas
 local function tradearCartaRoca()
     --jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 +1
@@ -1617,6 +2297,16 @@ local function tradearCartaRoca()
     arbolBank.isVisible = false
     cartasEspeciales.isVisible = false
     seleccionParaDar(false, 5)
+end
+
+local function tradearCartaRocaJugador()
+    --jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 +1
+    trigoBank.isVisible = false
+    vacaBank.isVisible = false
+    ladrilloBank.isVisible = false
+    arbolBank.isVisible = false
+    cartasEspeciales.isVisible = false
+    seleccionParaDarJugador(false, 5, 0, 0, rocaBank)
 end
 
 function contadorCartas()
@@ -1633,7 +2323,78 @@ function contadorCartas()
 end
 
 --Funciones para tradeo
+function tradearJugadores()
+    timer.pause(temporizador);
+    local cartas = contadorCartas()
+    
+    if cartas < 1 then
+         do return end
+    end
+
+    --Banco son lde abajo a la derecha
+    cartasEspeciales = display.newImageRect(grpPartida,"Imagenes/CartasM/tcartas.png", 100, 140)
+    cartasEspeciales.x = display.contentWidth - 650
+    cartasEspeciales.y = display.contentHeight- 90
+
+    arbolBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas11.png", 100, 140)
+    arbolBank.x = display.contentWidth - 540
+    arbolBank.y = display.contentHeight - 90
+
+    ladrilloBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas31.png", 100, 140)
+    ladrilloBank.x = display.contentWidth - 430
+    ladrilloBank.y = display.contentHeight- 90
+
+    trigoBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas21.png", 100, 140)
+    trigoBank.x = display.contentWidth - 320
+    trigoBank.y = display.contentHeight- 90
+
+    vacaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas41.png", 100, 140)
+    vacaBank.x = display.contentWidth - 210 
+    vacaBank.y = display.contentHeight- 90
+
+    rocaBank = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas51.png", 100, 140)
+    rocaBank.x = display.contentWidth -100
+    rocaBank.y = display.contentHeight - 90
+
+    especialesUser = display.newImageRect(grpPartida,"Imagenes/CartasM/especiales.png", 100, 140)
+    rocaUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas53.png", 100, 140)
+    vacaUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas43.png", 100, 140)
+    trigoUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas23.png", 100, 140)
+    arbolUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas13.png", 100, 140)
+    ladrilloUser = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas33.png", 100, 140)
+
+    --Banco
+    cartasEspeciales.isVisible = true
+    arbolBank.isVisible = true
+    ladrilloBank.isVisible = true
+    trigoBank.isVisible = true
+    vacaBank.isVisible = true
+    rocaBank.isVisible = true
+
+    especialesUser.isVisible = false
+    rocaUser.isVisible = false
+    vacaUser.isVisible = false
+    trigoUser.isVisible = false
+    arbolUser.isVisible = false
+    ladrilloUser.isVisible = false
+
+    arbolBank:addEventListener("tap", tradearCartaArbolJugador)
+    ladrilloBank:addEventListener("tap", tradearCartaLadrilloJugador)
+    trigoBank:addEventListener("tap", tradearCartaTrigoJugador)
+    vacaBank:addEventListener("tap", tradearCartaVacaJugador)
+    rocaBank:addEventListener("tap", tradearCartaRocaJugador)
+    tradeo:removeEventListener("tap", elegir)
+    tradeo:addEventListener("tap", cancelar)
+end
+
+
+
+
+
+
+
 function tradear()
+    timer.pause(temporizador);
     local cartas = contadorCartas()
     
     if cartas < 3 then
@@ -1728,10 +2489,7 @@ function scene:create(event)
     --Probabilidades
     dibujarNumeros()
     hazLaLuz()
-    temporizador = timer.performWithDelay(1000, actualizarTemporizador, tiempoTotal)
-
-    -- Inicializar el objeto de texto con el tiempo restante inicial
-    actualizarTextoTiempo()
+    
     textoRonda.text = "Ronda: 1"
     --Barcos
     local barco = display.newImageRect(grpPartida,"Imagenes/barco1.png", 200, 120)
@@ -1834,7 +2592,7 @@ function scene:create(event)
     usuario3_text = display.newText(grpPartida,jugadores[3].nombre, display.contentWidth - 350, display.contentHeight-675, native.systemFont, 50 )
     usuario3_text:setFillColor(0,0,0);
     textoPuntos[3] = display.newText(grpPartida,"0", display.contentWidth - 350, display.contentHeight-830, native.systemFont, 30 )
-    textoCartasT[3] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-750, native.systemFont, 30 )
+    textoCartasT[3] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-750, native.systemFont, 30 )
     textoCartasT[3]:setFillColor(0,0,0);
     textoPuntos[3]:setFillColor(0,0,0);
 
@@ -1843,11 +2601,14 @@ function scene:create(event)
     usuario4_text = display.newText(grpPartida,jugadores[4].nombre, display.contentWidth -150, display.contentHeight-675, native.systemFont, 50 )
     usuario4_text:setFillColor(0,0,0);
     textoPuntos[4] = display.newText(grpPartida,"0", display.contentWidth - 150, display.contentHeight-830, native.systemFont, 30 )
-    textoCartasT[4] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-750, native.systemFont, 30 )
+    textoCartasT[4] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-750, native.systemFont, 30 )
     textoCartasT[4]:setFillColor(0,0,0);
     textoPuntos[4]:setFillColor(0,0,0);
     
     colocarCartas()
+    colocarCartasEspeciales()
+    colocarTextoEspeciales()
+    colocarCartasRobarTodo()
     grpPartida:insert(grpJugadores[jugadores[1].numero])
     grpPartida:insert(grpJugadores[jugadores[2].numero])
     grpJugadores[2].isVisible = false
@@ -1887,7 +2648,7 @@ function scene:create(event)
     camino.x = display.contentCenterX +110
     camino.y = display.contentHeight- 100
     
-    tradeo = display.newImageRect(grpPartida,"Imagenes/Construccion/tradeo.png", 400, 240)
+    tradeo = display.newImageRect(grpPartida,"Imagenes/Construccion/tradeo.png", 300, 100)
     tradeo.x = display.contentCenterX-400
     tradeo.y = display.contentHeight-100
 
@@ -1907,18 +2668,22 @@ function scene:create(event)
     background2.isVisible = false
     pasar.isVisible = false
     seguir.isVisible = false
-
+    aparecerBotonesDeTradeo()
     dibujarArista()
     COMOQUIERAS2()
     
     camino:addEventListener("tap",reactivarCaminos)
     pasar:addEventListener("tap", pasarTurno)
+    
     casas:addEventListener("tap", colocarCasas)
     ciudades:addEventListener("tap", cambiarCiudad)
-    boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
-    dado1:addEventListener("tap", actualizaDado) --Se le agrega el evento a los dados para que puedan lanzarse
-    dado2:addEventListener("tap", actualizaDado)
-    tradeo:addEventListener("tap", tradear)
+    --tradeo:addEventListener("tap", tradear)
+    
+    cartasjugador[1][6]:addEventListener("tap",tarjetasEspeciales)
+    cartasjugador[2][6]:addEventListener("tap",tarjetasEspeciales)
+    cartasjugador[3][6]:addEventListener("tap",tarjetasEspeciales)
+    cartasjugador[4][6]:addEventListener("tap",tarjetasEspeciales)
+    
 end
 
 function scene:show(event)
