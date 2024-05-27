@@ -24,6 +24,8 @@ local dice1
 local dice2
 local boton
 local ronda = 1
+local mayorLadron = 0
+local cantLadrones = 0
 
 local tirarDados = false
 
@@ -151,7 +153,12 @@ local aristas = {}
 local caminosFlag = false
 local aristaClase = {}
 local especiales = {{1,1,1,1,1}, {1,2,1,1,1}, {1,3,1,1,1}, {1,4,1,1,1}}
+
+local bandEspeciales = false
+local cartaEsp = {{},{},{},{}}
+
 local cartaRobar = {}
+local dosCartasImagen = {{},{}}
 
 --Variable para controlar las repeticiones de los hexagonos
 local rep = {0,0,0,0,0,0}
@@ -209,13 +216,15 @@ local tradeo
 local tradeoTexto
 local usuariosTradeando = {}
 local btnRechazar
+local btnvisibles = false
 
 local elegir
 local tradear
 local tradearJugadores
 local seleccionParaDar
 local seleccionParaDarJugador
-
+local tarjetasEspeciales
+local terminar
 
 --Creacion de clases
 
@@ -224,8 +233,8 @@ Jugador = {
     nombre = "",
     puntos = 0,
     cartas = 0,
-    casasD = 4,
-    ciudadesD = 5, 
+    casasD = 5,
+    ciudadesD = 4, 
     caminosD = 15, 
     casasC = 0,
     cartas1 = 0, --arboles
@@ -236,7 +245,8 @@ Jugador = {
     cartas6 = 0,  --especiales
     --cartasR = {}
     casaL = 2,
-    caminoL = 2
+    caminoL = 2,
+    ladrones = 0
 
 }
 
@@ -288,6 +298,10 @@ end
 local function pasalo()
     
     textoTiempo.isVisible = false
+    bandEspeciales = true
+    btnvisibles = true
+    elegir()
+    tarjetasEspeciales()
     if ronda >= 2 then
         if tirarDados == false then
             actualizaDado()
@@ -332,6 +346,47 @@ local function saberJugador(event,CartaRecibir, Dar)
     seleccionParaDarJugador(true, CartaRecibir, Dar, posi)
     
     
+end
+
+local function rechazar()
+        timer.resume(temporizador)
+        background2.isVisible = false
+        for i = #usuariosTradeando, 1, -1 do
+            local img = table.remove(usuariosTradeando, i)
+            if img and img.removeSelf then
+                img:removeSelf()
+                img = nil
+            end
+        end
+        for i = #btnAceptarT, 1, -1 do
+            local img = table.remove(btnAceptarT, i)
+            if img and img.removeSelf then
+                img:removeSelf()
+                img = nil
+            end
+        end
+        tradeoTexto:removeSelf()
+        btnRechazar:removeSelf()
+        terminar()
+        for i in ipairs(verticeClase) do
+            if ronda > 1 then
+                if verticeClase[i].ocupado == true then
+                    verticesC[i].isVisible = true
+                end
+            else
+                verticesC[i].isVisible = true
+            end
+            
+        end
+    
+        for i in ipairs(aristaClase) do
+            if aristaClase[i].ocupado == true then
+                aristas[i].isVisible = true
+            end
+        end
+        for i = 1, 6 do
+            cantidadesCartas[i].isVisible = true
+        end
 end
 
 local function tradeoPlayers(CartaRecibir, Dar, bank, user)
@@ -406,7 +461,7 @@ local function tradeoPlayers(CartaRecibir, Dar, bank, user)
     local aceptar1 = display.newImageRect(grpPartida,"Imagenes/Menu/aceptar.png", 285, 100)
     aceptar1.x = cx - 300
     aceptar1.y = cy - 120
-    btnAceptarT[2] = aceptar1
+    btnAceptarT[1] = aceptar1
 
     local usuario4 = display.newImageRect(grpPartida,"Imagenes/CartasM/usuario2.png", 285, 370)
     usuario4.x = cx + 300
@@ -416,7 +471,7 @@ local function tradeoPlayers(CartaRecibir, Dar, bank, user)
     local aceptar2 = display.newImageRect(grpPartida,"Imagenes/Menu/aceptar.png", 285, 100)
     aceptar2.x = cx + 300
     aceptar2.y = cy - 120
-    btnAceptarT[1] = aceptar2
+    btnAceptarT[2] = aceptar2
 
     
 
@@ -425,9 +480,34 @@ local function tradeoPlayers(CartaRecibir, Dar, bank, user)
     btnRechazar = display.newImageRect(grpPartida,"Imagenes/Menu/rechazar.png", 285, 100)
     btnRechazar.x = cx
     btnRechazar.y = cy + 50
+    btnRechazar:addEventListener("tap", rechazar)
+    for i = 1, 4 do
+        if CartaRecibir == 1 then
+            if jugadores[i].cartas1 < 1 then
+                btnAceptarT[i].isVisible = false
+            end
+        elseif CartaRecibir == 2 then
+            if jugadores[i].cartas2 < 1 then
+                btnAceptarT[i].isVisible = false
+            end
+        elseif CartaRecibir == 3 then
+            if jugadores[i].cartas3 < 1 then
+                btnAceptarT[i].isVisible = false
+            end
+        elseif CartaRecibir == 4 then
+            if jugadores[i].cartas4 < 1 then
+                btnAceptarT[i].isVisible = false
+            end
+        elseif CartaRecibir == 5 then
+            if jugadores[i].cartas5 < 1 then
+                btnAceptarT[i].isVisible = false
+            end
+        end
+    end
 
-    if jugadorActual == 1 then
+    if jugadorActual==1  then
         btnAceptarT[1].isVisible = false
+        
     elseif jugadorActual == 2 then
         btnAceptarT[2].isVisible = false
     elseif jugadorActual == 3  then
@@ -697,7 +777,20 @@ local function reactivarCaminos()
     end
 end
 
+local function otorgarPuntosLadrones()
+    if cantLadrones < jugadores[jugadorActual].ladrones then
+        jugadores[jugadorActual].puntos =  jugadores[jugadorActual].puntos + 2
+        mayorLadron = jugadorActual
+        if cantLadrones ~= 0 then
+            jugadores[mayorLadron].puntos =  jugadores[mayorLadron].puntos
+        end
+    end
+    
+end
+
 local function moverLadron(event)
+    otorgarPuntosLadrones()
+    actualizarTextoPuntos()
     local imagenClicada = event.target
     local posi = 0
     for i = 1, 19 do
@@ -707,7 +800,7 @@ local function moverLadron(event)
             break
         end
     end
-
+    jugadores[jugadorActual].ladrones = jugadores[jugadorActual].ladrones + 1
     if probabilidadA == 0 then
         probabilidadA = numeroHexagonos[posi][2] --La probalidad antes de ladron
         posicionLadronA = posi --Ubicacion del ladron
@@ -726,7 +819,7 @@ local function moverLadron(event)
         hexagonosM[i]:removeEventListener("tap",moverLadron)
     end
     boton:addEventListener("tap", pasalo)
-
+   
     --hexagonosM[hexagono].
 end
 
@@ -872,6 +965,11 @@ function pasarTurno() --Función para pasar el Turno al siguiente jugador.
         actualizarTextoTiempo()
     end
     
+
+    
+
+
+
     desactivarCaminos()
     actualizarTextoRecursos()
     --reactivarCaminos()
@@ -1462,7 +1560,7 @@ local function cambiarImagen2(event) --Coloca las casas
                 if jugadores[jugadorActual].caminoL == 0 and jugadores[jugadorActual].casaL == 0 then
                     boton:addEventListener("tap", pasalo) --Se le agrega el evento al objeto para pasar Turno
                 end 
-            else
+            elseif jugadores[jugadorActual].caminoL == 0 then
                 jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 -1
                 jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 -1
             end
@@ -1524,7 +1622,6 @@ local function hazLaLuz()
 
 end
 
-local btnvisibles = false
 
 
 local function aparecerBotonesDeTradeo()
@@ -1553,8 +1650,7 @@ function elegir()
     end
 end
 
-local bandEspeciales = false
-local cartaEsp = {{},{},{},{}}
+
 
 local function colocarTextoEspeciales()
     
@@ -1577,8 +1673,8 @@ end
 local function ladronEsp()
     if especiales[jugadorActual][1] > 0 then
         especiales[jugadorActual][1] = especiales[jugadorActual][1] - 1
-        actualizarRecursos()
         jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarRecursos()
         actualizarTextoEspeciales()
         actualizarRecursos()
         for i = 1, 19 do
@@ -1603,8 +1699,8 @@ end
 local function dosCaminos()
     if especiales[jugadorActual][3] > 0 then
         especiales[jugadorActual][3] = especiales[jugadorActual][3] - 1
-        actualizarRecursos()
         jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarRecursos()
         actualizarTextoEspeciales()
         caminosFlag = true
         jugadores[jugadorActual].caminoL = jugadores[jugadorActual].caminoL + 2
@@ -1614,10 +1710,7 @@ local function dosCaminos()
 end
 
 local function robarTodo(event)
-    especiales[jugadorActual][3] = especiales[jugadorActual][5] - 1
-    actualizarRecursos()
-    jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
-    actualizarTextoEspeciales()
+    
 
     local imagenClicada = event.target
     local posi = 0
@@ -1671,6 +1764,10 @@ local function robarTodo(event)
         jugadores[jugadorActual].cartas5 = acumulado
     end
 
+    for i=1, 5 do
+        cartaRobar[i].isVisible = false
+    end
+
     actualizarRecursos()
     actualizarTextoRecursos()
     actualizarTextoCartasT()
@@ -1679,6 +1776,10 @@ end
 
 local function mostrarCartasRobarTodo()
     if especiales[jugadorActual][5] > 0 then
+        especiales[jugadorActual][5] = especiales[jugadorActual][5] - 1
+        jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarRecursos()
+        actualizarTextoEspeciales()
         for i = 1, 5 do
         cartaRobar[i].isVisible = true
         end
@@ -1687,8 +1788,8 @@ local function mostrarCartasRobarTodo()
 end
 
 local function colocarCartasRobarTodo()
-    local x = 260
-    local y = 80
+    local x = 300
+    local y = 100
     for i = 1, 5 do
         cartaRobar[i] = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas"..i.."1.png", 100, 140)
         cartaRobar[i].x =  x    
@@ -1699,6 +1800,108 @@ local function colocarCartasRobarTodo()
     end
     
 end
+
+local function DarCartas(event)
+    local imagenClicada = event.target
+    local posi = 0
+    for i = 1, 5 do
+        if dosCartasImagen[1][i] == imagenClicada then
+                posi = i
+                print(posi)
+            break
+        end
+    end
+    for i = 1, 5 do
+        if dosCartasImagen[2][i] == imagenClicada then
+                posi = i+5
+                print(posi)
+            break
+        end
+    end
+
+    if posi == 1 then
+        jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 + 1
+    elseif posi == 2 then
+        jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 + 1
+    elseif posi == 3 then
+        jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 + 1
+    elseif posi == 4 then
+        jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 + 1
+    elseif posi == 5 then
+        jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 + 1
+    elseif posi == 6 then
+        jugadores[jugadorActual].cartas1 = jugadores[jugadorActual].cartas1 + 1
+    elseif posi == 7 then
+        jugadores[jugadorActual].cartas2 = jugadores[jugadorActual].cartas2 + 1
+    elseif posi == 8 then
+        jugadores[jugadorActual].cartas3 = jugadores[jugadorActual].cartas3 + 1
+    elseif posi == 9 then
+        jugadores[jugadorActual].cartas4 = jugadores[jugadorActual].cartas4 + 1
+    else
+        jugadores[jugadorActual].cartas5 = jugadores[jugadorActual].cartas5 + 1
+    end
+
+    if posi <= 5 then
+        for i = 1, 5 do
+            dosCartasImagen[1][i].isVisible = false
+        end
+    end
+
+    if posi > 5 then
+        for i = 1, 5 do
+            dosCartasImagen[2][i].isVisible = false
+        end
+    end
+
+    actualizarRecursos()
+    actualizarTextoRecursos()
+    actualizarTextoCartasT()
+    
+end
+
+
+local function mostrarDosCartas()
+    if especiales[jugadorActual][4] > 0 then
+        especiales[jugadorActual][4] = especiales[jugadorActual][4] - 1
+        jugadores[jugadorActual].cartas6 = jugadores[jugadorActual].cartas6 - 1
+        actualizarRecursos()
+        actualizarTextoEspeciales()
+        
+        for i = 1, 2 do
+            for j = 1, 5 do
+                dosCartasImagen[i][j].isVisible = true
+            end
+        end
+    end
+
+end
+
+
+local function colocarDosCartas()
+    local x = 300
+    local y = 100
+    for i = 1, 5 do
+        dosCartasImagen[1][i] = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas"..i.."1.png", 100, 140)
+        dosCartasImagen[1][i].x =  x    
+        dosCartasImagen[1][i].y =  y
+        dosCartasImagen[1][i]:addEventListener("tap",DarCartas)
+        dosCartasImagen[1][i].isVisible = false
+        y = y + 150
+    end
+    
+    x = 430
+    y = 100
+
+    for i = 1, 5 do
+        dosCartasImagen[2][i] = display.newImageRect(grpPartida,"Imagenes/CartasM/cartas"..i.."1.png", 100, 140)
+        dosCartasImagen[2][i].x = x    
+        dosCartasImagen[2][i].y = y
+        dosCartasImagen[2][i]:addEventListener("tap",DarCartas)
+        dosCartasImagen[2][i].isVisible = false
+        y = y + 150
+    end
+end
+
 
 local function colocarCartasEspeciales()
         for i = 1,4 do
@@ -1729,22 +1932,31 @@ local function colocarCartasEspeciales()
             cartaEsp[i][4] = display.newImageRect(grpPartida,"Imagenes/CartasM/dcartas.png", 100, 140)
             cartaEsp[i][4].x = x
             cartaEsp[i][4].y = y
+            cartaEsp[i][4]:addEventListener("tap",mostrarDosCartas)
             x = x + 120
             cartaEsp[i][4].isVisible = false
     
             cartaEsp[i][5] = display.newImageRect(grpPartida,"Imagenes/CartasM/especiales.png", 100, 140)
             cartaEsp[i][5].x = x
             cartaEsp[i][5].y = y
-            cartaEsp[i][3]:addEventListener("tap",mostrarCartasRobarTodo)
+            cartaEsp[i][5]:addEventListener("tap",mostrarCartasRobarTodo)
             cartaEsp[i][5].isVisible = false
         end
 end
 
 
-local function tarjetasEspeciales()
+function tarjetasEspeciales()
     
     if bandEspeciales == false then
         actualizarTextoEspeciales()
+
+        for i=1, 4 do
+            for j=1, 5 do
+                cartaEsp[i][j].isVisible = false
+                textoEspeciales[i][j].isVisible = false
+            end
+        end
+
         for i = 1, 5 do
             cartaEsp[jugadorActual][i].isVisible = true
             textoEspeciales[jugadorActual][i].isVisible = true
@@ -1769,7 +1981,7 @@ end
 
 
 --Bolillo y SeRaTo12
-local function terminar()
+function terminar()
     rocaBank.isVisible = false
     trigoBank.isVisible = false
     vacaBank.isVisible = false
@@ -2454,7 +2666,7 @@ function tradear()
     trigoBank:addEventListener("tap", tradearCartaTrigo)
     vacaBank:addEventListener("tap", tradearCartaVaca)
     rocaBank:addEventListener("tap", tradearCartaRoca)
-    tradeo:removeEventListener("tap", tradear)
+    tradeo:removeEventListener("tap", elegir)
     tradeo:addEventListener("tap", cancelar)
 end
 
@@ -2466,6 +2678,8 @@ function scene:create(event)
     local njugador2 = params.jugador2
     local njugador3 = params.jugador3
     local njugador4 = params.jugador4
+    print(njugador1)
+    print(njugador2)
     --Agregar grupo de imagenes
     grpPartida = display.newGroup()
     self.view:insert(grpPartida)
@@ -2563,10 +2777,10 @@ function scene:create(event)
 
 
     --Alta de jugadores
-    jugadores[1] = Jugador:nuevo(njugador2) --Verde
+    jugadores[1] = Jugador:nuevo(njugador1) --Verde
     --jugando.text = njugador1
     jugadores[1].numero = 1
-    usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -150, display.contentHeight-920, native.systemFont, 50 )
+    usuario1_text = display.newText(grpPartida,jugadores[1].nombre, display.contentWidth -350, display.contentHeight-920, native.systemFont, 50 )
     usuario1_text:setFillColor(0,0,0);
     textoPuntos[2] = display.newText(grpPartida,"0", display.contentWidth - 150, display.contentHeight-1080, native.systemFont, 30 )
     textoCartasT[2] = display.newText(grpPartida,"0", display.contentWidth - 70, display.contentHeight-1000, native.systemFont, 30 )
@@ -2576,9 +2790,9 @@ function scene:create(event)
     --table.insert(jugadores,jugador1)
 
 
-    jugadores[2] = Jugador:nuevo(njugador1)
+    jugadores[2] = Jugador:nuevo(njugador2)
     jugadores[2].numero = 2
-    usuario2_text = display.newText(grpPartida,jugadores[2].nombre, display.contentWidth - 350 , display.contentHeight-920, native.systemFont, 50 )
+    usuario2_text = display.newText(grpPartida,jugadores[2].nombre, display.contentWidth - 150 , display.contentHeight-920, native.systemFont, 50 )
     usuario2_text:setFillColor(0,0,0);
     textoPuntos[1] = display.newText(grpPartida,"0", display.contentWidth -350 , display.contentHeight-1080, native.systemFont, 30 )
     textoCartasT[1] = display.newText(grpPartida,"0", display.contentWidth - 270, display.contentHeight-1000, native.systemFont, 30 )
@@ -2608,6 +2822,7 @@ function scene:create(event)
     colocarCartas()
     colocarCartasEspeciales()
     colocarTextoEspeciales()
+    colocarDosCartas()
     colocarCartasRobarTodo()
     grpPartida:insert(grpJugadores[jugadores[1].numero])
     grpPartida:insert(grpJugadores[jugadores[2].numero])
