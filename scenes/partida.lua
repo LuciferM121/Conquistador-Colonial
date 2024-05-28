@@ -2285,7 +2285,6 @@ function seleccionParaDarJugador(contador1, cartaRecibir, Dar, jug, bank)
     vacaUser.isVisible = false
     rocaUser.isVisible = false
     trigoUser.isVisible = false
-    print("tuputamadrejimbo")
     if contador1 then
         print(carta)
         if cartaRecibir == 1 then
@@ -2315,7 +2314,6 @@ function seleccionParaDarJugador(contador1, cartaRecibir, Dar, jug, bank)
             sumarCartas(Dar,jug)
         end
         
-        print("tuputamadrejimbo2")
         actualizarRecursos()
         timer.resume(temporizador)
         background2.isVisible = false
@@ -2359,7 +2357,6 @@ function seleccionParaDarJugador(contador1, cartaRecibir, Dar, jug, bank)
         tradeo:removeEventListener("tap", cancelar)
         tradeo:addEventListener("tap", elegir)
         btnvisibles = false
-        print("siiii")
         do return end
     end
     
